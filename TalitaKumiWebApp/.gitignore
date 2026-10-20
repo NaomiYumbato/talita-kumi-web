@@ -1,0 +1,24 @@
+# Environment variables
+.env
+.env.local
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Bb]in/
+[Oo]bj/
+
+# SQLite local databases
+*.db
+*.db-shm
+*.db-wal
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+.DS_Store
