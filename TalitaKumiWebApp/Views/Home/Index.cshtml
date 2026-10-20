@@ -1,0 +1,526 @@
+@{
+    ViewData["Title"] = "Uñas, Cejas y Pestañas en Palermo";
+}
+
+<!-- 1. HERO SECTION -->
+<section class="hero-section" id="inicio">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 order-2 order-lg-1">
+                <span class="section-tag">
+                    <i class="bi bi-stars me-1"></i> Estudio de Belleza Exclusivo
+                </span>
+                <h1 class="hero-title">
+                    Uñas, cejas y pestañas hechas a tu medida
+                </h1>
+                <p class="hero-subtitle">
+                    Tarapoto, Perú &#127477;&#127466;
+                    <br />
+                    Cuidado profesional, arte y detalle para realzar tu belleza natural.
+                </p>
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <a href="#reserva" class="btn btn-brand-primary btn-lg">
+                        <i class="bi bi-calendar2-check me-2"></i>Reservar cita
+                    </a>
+                    <a href="#servicios" class="btn btn-outline-brand btn-lg">
+                        Ver servicios
+                    </a>
+                </div>
+            </div>
+
+            <!-- FOTO GRANDE: Manos con manicura -->
+            <div class="col-lg-6 order-1 order-lg-2">
+                <div class="hero-img-wrapper text-center">
+                    <img src="https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=1000&q=80" 
+                         alt="Manos con manicura profesional y diseño exclusivo" 
+                         class="hero-img img-fluid" />
+                    
+                    <div class="hero-floating-badge">
+                        <div class="hero-badge-icon">
+                            <i class="bi bi-gem"></i>
+                        </div>
+                        <div class="text-start">
+                            <div class="fw-bold" style="font-size: 0.9rem;">Técnica Rusa & Soft Gel</div>
+                            <small class="text-muted" style="font-size: 0.75rem;">Durabilidad de más de 21 días</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 2. SERVICIOS (4 tarjetas con foto, precio y tipos) -->
+<section class="section-padding" id="servicios">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-tag">Nuestras Especialidades</span>
+            <h2 class="section-title">Servicios que transforman tu día</h2>
+            <p class="section-subtitle">
+                Técnicas avanzadas y productos de primera línea para garantizar resultados duraderos e impecables.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Tarjeta 1: Manicura -->
+            <div class="col-lg-3 col-md-6">
+                <div class="service-card">
+                    <div class="service-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80" 
+                             alt="Manicura Rusa y Semipermanente" class="service-img" />
+                        <span class="service-price-badge">Desde S/. 45.00</span>
+                    </div>
+                    <div class="service-body">
+                        <h3 class="service-title">Manicura</h3>
+                        <ul class="service-list">
+                            <li><i class="bi bi-check2-circle"></i> Manicura Rusa combinada</li>
+                            <li><i class="bi bi-check2-circle"></i> Esmaltado Semipermanente</li>
+                            <li><i class="bi bi-check2-circle"></i> Kapping Gel / Acrigel</li>
+                            <li><i class="bi bi-check2-circle"></i> Soft Gel Tips anatómicos</li>
+                        </ul>
+                        <a href="#reserva" class="btn btn-outline-brand w-100" onclick="preselectService('Manicura Semipermanente')">
+                            Reservar Manicura
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2: Pedicura -->
+            <div class="col-lg-3 col-md-6">
+                <div class="service-card">
+                    <div class="service-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&w=800&q=80" 
+                             alt="Pedicura Spa y Belleza de Pies" class="service-img" />
+                        <span class="service-price-badge">Desde S/. 45.00</span>
+                    </div>
+                    <div class="service-body">
+                        <h3 class="service-title">Pedicura</h3>
+                        <ul class="service-list">
+                            <li><i class="bi bi-check2-circle"></i> Pedicura Rusa profunda</li>
+                            <li><i class="bi bi-check2-circle"></i> Spa de pies exfoliante</li>
+                            <li><i class="bi bi-check2-circle"></i> Esmaltado Semipermanente</li>
+                            <li><i class="bi bi-check2-circle"></i> Masaje relajante e hidratación</li>
+                        </ul>
+                        <a href="#reserva" class="btn btn-outline-brand w-100" onclick="preselectService('Pedicura Spa')">
+                            Reservar Pedicura
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3: Diseño -->
+            <div class="col-lg-3 col-md-6">
+                <div class="service-card">
+                    <div class="service-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1607779097040-26e80aa78e66?auto=format&fit=crop&w=800&q=80" 
+                             alt="Diseño Nail Art y Esculpidas" class="service-img" />
+                        <span class="service-price-badge">Desde S/. 15.00</span>
+                    </div>
+                    <div class="service-body">
+                        <h3 class="service-title">Diseño & Nail Art</h3>
+                        <ul class="service-list">
+                            <li><i class="bi bi-check2-circle"></i> Arte a mano alzada</li>
+                            <li><i class="bi bi-check2-circle"></i> Efecto Cat Eye & Cromados</li>
+                            <li><i class="bi bi-check2-circle"></i> French moderno y degradé</li>
+                            <li><i class="bi bi-check2-circle"></i> Cristales y aplicaciones de foil</li>
+                        </ul>
+                        <div class="d-flex flex-column gap-2">
+                            <button type="button" class="btn btn-brand-primary w-100" onclick="Chatbot.open()">
+                                <i class="bi bi-chat-heart me-1"></i> Cotizar con Bot
+                            </button>
+                            <a href="#reserva" class="btn btn-outline-brand w-100" onclick="preselectService('Soft Gel Tips')">
+                                Reservar Directo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 4: Cejas & Pestañas -->
+            <div class="col-lg-3 col-md-6">
+                <div class="service-card">
+                    <div class="service-img-wrapper">
+                        <img src="https://6ad017b9a148e8339071474e.imgix.net/eyelashes-and-eyebrows.png" 
+                             alt="Lifting de Pestañas y Laminado de Cejas" class="service-img" />
+                        <span class="service-price-badge">Desde S/. 55.00</span>
+                    </div>
+                    <div class="service-body">
+                        <h3 class="service-title">Cejas y Pestañas</h3>
+                        <ul class="service-list">
+                            <li><i class="bi bi-check2-circle"></i> Lifting + Tinte de pestañas</li>
+                            <li><i class="bi bi-check2-circle"></i> Laminado & Nutrición de cejas</li>
+                            <li><i class="bi bi-check2-circle"></i> Perfilado con visagismo facial</li>
+                            <li><i class="bi bi-check2-circle"></i> Henna orgánica de alta definición</li>
+                        </ul>
+                        <a href="#reserva" class="btn btn-outline-brand w-100" onclick="preselectService('Lifting de Pestañas')">
+                            Reservar Mirada
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 3. POR QUÉ ELEGIRNOS (3 íconos + 1 línea) -->
+<section class="section-padding features-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-tag">Nuestro Compromiso</span>
+            <h2 class="section-title">Por qué elegirnos</h2>
+            <p class="section-subtitle">
+                Cuidamos de ti con los más altos estándares de calidad, seguridad y bienestar.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- 1. Higiene (Azul Olas) -->
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-circle icon-water">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <h4 class="feature-title">Higiene Absoluta</h4>
+                    <p class="feature-desc">
+                        Esterilización en autoclave médica de grado clínico y sobres descartables para cada clienta.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. Materiales (Naranja Koi) -->
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-circle icon-coral">
+                        <i class="bi bi-droplet-half"></i>
+                    </div>
+                    <h4 class="feature-title">Materiales Premium</h4>
+                    <p class="feature-desc">
+                        Geles hipoalergénicos certificados, pigmentos cruelty-free y productos que preservan tu uña natural.
+                    </p>
+                </div>
+            </div>
+
+            <!-- 3. Atención (Dorado Koi) -->
+            <div class="col-md-4">
+                <div class="feature-box">
+                    <div class="feature-icon-circle icon-gold">
+                        <i class="bi bi-heart"></i>
+                    </div>
+                    <h4 class="feature-title">Atención Personalizada</h4>
+                    <p class="feature-desc">
+                        Sin apuros: dedicamos el tiempo necesario para escucharte, asesorarte y lograr el diseño que sueñas.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 4. GALERÍA: 6 fotos en cuadrícula -->
+<section class="section-padding" id="galeria">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-tag">Portafolio</span>
+            <h2 class="section-title">Galería de Trabajos</h2>
+            <p class="section-subtitle">
+                Una muestra de los diseños y acabados que creamos todos los días en el estudio.
+            </p>
+        </div>
+
+        <div class="row g-4">
+            <!-- Foto 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=800&q=80" 
+                         alt="Nail Art Minimalista" class="gallery-img" />
+                    <div class="gallery-overlay">
+                        <div class="gallery-tag">Esmaltado Ruso & Nude</div>
+                        <div class="gallery-category">Manicura Premium</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=800&q=80" 
+                         alt="Soft Gel Almendra" class="gallery-img" />
+                    <div class="gallery-overlay">
+                        <div class="gallery-tag">Soft Gel Tips Almendradas</div>
+                        <div class="gallery-category">Esculpidas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto 3 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1512496015851-a90fb38ba796?auto=format&fit=crop&w=800&q=80" 
+                         alt="Lifting y Tinte de Pestañas" class="gallery-img" />
+                    <div class="gallery-overlay">
+                        <div class="gallery-tag">Lifting + Queratina</div>
+                        <div class="gallery-category">Pestañas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto 4 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=800&q=80" 
+                         alt="Nail Art Cat Eye" class="gallery-img" />
+                    <div class="gallery-overlay">
+                        <div class="gallery-tag">Efecto Ojo de Gato & Cristales</div>
+                        <div class="gallery-category">Nail Art</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto 5 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=800&q=80" 
+                         alt="Perfilado y Laminado de Cejas" class="gallery-img" />
+                    <div class="gallery-overlay">
+                        <div class="gallery-tag">Laminado y Diseño con Henna</div>
+                        <div class="gallery-category">Cejas</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Foto 6 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="gallery-item">
+                    <img src="https://images.unsplash.com/photo-1632345031435-8727f6897d53?auto=format&fit=crop&w=800&q=80" 
+                         alt="Francesita Moderna" class="gallery-img" />
+                    <div class="gallery-overlay">
+                        <div class="gallery-tag">Kapping Gel + Micro French</div>
+                        <div class="gallery-category">Manicura Natural</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 5. DATOS DE CONTACTO + MAPA -->
+<section class="section-padding" id="contacto">
+    <div class="container">
+        <div class="text-center mb-5">
+            <span class="section-tag">Ubicación y Atención</span>
+            <h2 class="section-title">Encuéntranos en Tarapoto</h2>
+            <p class="section-subtitle">
+                Estamos en una ubicación de fácil acceso, en un ambiente diseñado para desconectarte del estrés.
+            </p>
+        </div>
+
+        <div class="row g-4 align-items-stretch">
+            <!-- Datos de contacto -->
+            <div class="col-lg-5">
+                <div class="contact-info-card">
+                    <h3 class="font-heading fs-3 mb-4">Información del Estudio</h3>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-geo-alt"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold mb-1">Dirección</div>
+                            <div class="text-muted">Av. Santa Fe 3420<br />Tarapoto, Perú</div>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-clock"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold mb-1">Horario de Atención</div>
+                            <div class="text-muted">
+                                <strong>Lunes a Sábados:</strong> 10:00 a 19:30 hs<br />
+                                <strong>Domingos:</strong> Cerrado
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="bi bi-whatsapp"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold mb-1">WhatsApp & Teléfono</div>
+                            <div class="text-muted">+51 911 345 678</div>
+                            <a href="https://wa.me/51911345678" target="_blank" class="small text-decoration-none fw-semibold" style="color: var(--brand-primary);">
+                                Enviar mensaje directo &rarr;
+                            </a>
+                        </div>
+                    </div>
+
+                    <div class="contact-item mb-0">
+                        <div class="contact-icon">
+                            <i class="bi bi-instagram"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold mb-1">Redes Sociales</div>
+                            <div class="text-muted">@@ttalita_kumi</div>
+                            <div class="d-flex gap-2 mt-2">
+                                <a href="https://instagram.com" target="_blank" class="btn btn-sm btn-outline-secondary">Instagram</a>
+                                <a href="https://tiktok.com" target="_blank" class="btn btn-sm btn-outline-secondary">TikTok</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mapa embebido -->
+            <div class="col-lg-7">
+                <div class="map-wrapper">
+                    <iframe 
+                        title="Ubicación Talita Kumi Estudio de Belleza"
+                        src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d1252.5069132733495!2d-76.36590927748517!3d-6.50199795880631!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2spe!4v1792023636010!5m2!1ses-419!2spe" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                    </iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- 7. FORMULARIO DE RESERVA -->
+<section class="section-padding booking-section" id="reserva">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="booking-card">
+                    <div class="text-center mb-4">
+                        <span class="section-tag">Agenda tu Cita</span>
+                        <h2 class="section-title mb-2">Solicita tu Reserva</h2>
+                        <p class="text-muted">
+                            Completa los datos y te confirmaremos la disponibilidad a la brevedad por WhatsApp.
+                        </p>
+                    </div>
+
+                    <!-- Banner cuando la reserva proviene de una cotización del Asistente -->
+                    <div id="cotizacionBanner" class="alert d-none mb-4 p-3 rounded-3 shadow-sm border-0 position-relative" style="background-color: #EBF3F8; border-left: 4px solid var(--brand-primary) !important;">
+                        <button type="button" class="btn-close position-absolute top-0 end-0 m-3" id="btnQuitarCotizacion" aria-label="Quitar cotización"></button>
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="badge" style="background-color: var(--brand-primary);">Presupuesto Asistente</span>
+                            <strong id="cotizacionTitulo" class="fs-6" style="color: var(--brand-dark);">Soft Gel</strong>
+                        </div>
+                        <div class="row g-2 pt-1 border-top" style="border-color: rgba(67, 118, 148, 0.15) !important;">
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">Total Estimado:</span>
+                                <span id="cotizacionPrecio" class="fw-bold fs-5" style="color: var(--brand-accent);">S/. 0.00</span>
+                            </div>
+                            <div class="col-sm-6">
+                                <span class="text-muted small d-block">Duración aproximada:</span>
+                                <span id="cotizacionDuracion" class="fw-semibold text-dark"><i class="bi bi-clock me-1"></i>0m</span>
+                            </div>
+                        </div>
+                        <div id="cotizacionDetallesTexto" class="small text-muted mt-2 fst-italic"></div>
+                    </div>
+
+                    <form id="bookingForm" onsubmit="handleBookingSubmit(event)">
+                        <div class="row g-3">
+                            <!-- Nombre -->
+                            <div class="col-md-6">
+                                <label for="clientName" class="form-label">Nombre y Apellido</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-person text-muted"></i></span>
+                                    <input type="text" class="form-control border-start-0" id="clientName" placeholder="Tu nombre" required />
+                                </div>
+                            </div>
+
+                            <!-- WhatsApp -->
+                            <div class="col-md-6">
+                                <label for="clientPhone" class="form-label">WhatsApp (Celular)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-whatsapp text-muted"></i></span>
+                                    <input type="tel" class="form-control border-start-0" id="clientPhone" placeholder="Ej: 901 123 123" required />
+                                </div>
+                            </div>
+
+                            <!-- Servicio (lista desplegable con precios en Soles) -->
+                            <div class="col-12">
+                                <label for="serviceSelect" class="form-label">Servicio deseado</label>
+                                <select class="form-select" id="serviceSelect" required>
+                                    <option value="" disabled selected>Selecciona un servicio...</option>
+                                    <optgroup label="💅 Uñas & Manicura">
+                                        <option value="Manicura Semipermanente" data-is-nail="true" data-base-price="45" data-duration="60">Manicura Semipermanente / Rusa (Desde S/. 45.00 · 1h)</option>
+                                        <option value="Kapping Gel" data-is-nail="true" data-base-price="65" data-duration="75">Kapping Gel / Refuerzo (Desde S/. 65.00 · 1h 15m)</option>
+                                        <option value="Soft Gel Tips" data-is-nail="true" data-base-price="90" data-duration="90">Soft Gel Tips / Extensiones (Desde S/. 90.00 · 1h 30m)</option>
+                                        <option value="Uñas Esculpidas" data-is-nail="true" data-base-price="120" data-duration="120">Uñas Esculpidas en Acrílico (Desde S/. 120.00 · 2h)</option>
+                                    </optgroup>
+                                    <optgroup label="🦶 Pedicura">
+                                        <option value="Pedicura Spa" data-is-nail="false" data-base-price="45" data-duration="45">Pedicura Spa & Rusa (S/. 45.00 · 45m)</option>
+                                        <option value="Pedicura Completa con Semipermanente" data-is-nail="false" data-base-price="65" data-duration="60">Pedicura Spa + Semipermanente (S/. 65.00 · 1h)</option>
+                                    </optgroup>
+                                    <optgroup label="👁️ Mirada & Cejas">
+                                        <option value="Lifting de Pestañas" data-is-nail="false" data-base-price="70" data-duration="60">Lifting + Tinte de Pestañas (S/. 70.00 · 1h)</option>
+                                        <option value="Laminado de Cejas" data-is-nail="false" data-base-price="55" data-duration="45">Laminado & Perfilado de Cejas (S/. 55.00 · 45m)</option>
+                                        <option value="Combo Lifting + Laminado" data-is-nail="false" data-base-price="110" data-duration="90">Combo Mirada Completa (S/. 110.00 · 1h 30m)</option>
+                                    </optgroup>
+                                    <optgroup label="✨ Otros Servicios">
+                                        <option value="Depilación Facial con Cera" data-is-nail="false" data-base-price="25" data-duration="20">Depilación Facial con Cera (S/. 25.00 · 20m)</option>
+                                        <option value="Retiro de Esmalte o Uñas" data-is-nail="false" data-base-price="20" data-duration="30">Retiro de Sistema Anterior (S/. 20.00 · 30m)</option>
+                                    </optgroup>
+                                </select>
+                                <div id="nailHelperAlert" class="d-none mt-2 p-2 rounded small" style="background-color: #FFF6ED; border: 1px solid #FCD3B6; color: #8A3B22;">
+                                    <i class="bi bi-lightbulb-fill text-warning me-1"></i>
+                                    <strong>¿Deseas personalizar largo o nail art?</strong>
+                                    <a href="javascript:void(0)" onclick="Chatbot.open()" class="ms-1 fw-bold text-decoration-underline" style="color: var(--brand-accent);">
+                                        Cotiza tu diseño exacto en 30s con el Asistente &rarr;
+                                    </a>
+                                </div>
+                            </div>
+
+                            <!-- Fecha y Hora -->
+                            <div class="col-md-6">
+                                <label for="bookingDate" class="form-label">Fecha deseada</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event text-muted"></i></span>
+                                    <input type="date" class="form-control border-start-0" id="bookingDate" required />
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="bookingTime" class="form-label">Franja horaria preferida</label>
+                                <select class="form-select" id="bookingTime" required>
+                                    <option value="" disabled selected>Elige un turno...</option>
+                                    <option value="Mañana (10:00 a 13:00)">Mañana (10:00 a 13:00)</option>
+                                    <option value="Tarde Temprano (13:00 a 16:30)">Tarde temprano (13:00 a 16:30)</option>
+                                    <option value="Tarde Tarde (16:30 a 19:30)">Tarde tarde (16:30 a 19:30)</option>
+                                </select>
+                            </div>
+
+                            <!-- Mensaje (opcional) -->
+                            <div class="col-12">
+                                <label for="clientMessage" class="form-label">Mensaje adicional (opcional)</label>
+                                <textarea class="form-control" id="clientMessage" rows="3" 
+                                          placeholder="¿Tienes retiro de trabajo anterior? ¿Alguna idea especial de diseño?"></textarea>
+                            </div>
+
+                            <!-- Botón Enviar solicitud -->
+                            <div class="col-12 text-center pt-3">
+                                <button type="submit" class="btn btn-brand-primary btn-lg w-100 py-3 shadow">
+                                    <i class="bi bi-send me-2"></i>Enviar solicitud de reserva
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Mensaje de confirmación en pantalla -->
+                    <div id="bookingSuccess" class="alert alert-success mt-4 d-none text-center rounded-3 p-4">
+                        <i class="bi bi-check-circle-fill text-success fs-1 mb-2 d-block"></i>
+                        <h4 class="alert-heading">¡Solicitud recibida con éxito!</h4>
+                        <p class="mb-3">Estamos procesando tu turno. Te redirigiremos a WhatsApp para enviar el detalle de tu reserva.</p>
+                        <a id="btnSendWhatsApp" href="#" target="_blank" class="btn btn-success rounded-pill px-4">
+                            <i class="bi bi-whatsapp me-2"></i>Continuar en WhatsApp
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
