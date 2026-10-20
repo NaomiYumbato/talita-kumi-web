@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Talita Kumi Estudio de Belleza</title>
+
+    <!-- Google Fonts: Cormorant Garamond -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap & Icons -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/chatbot.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TalitaKumiWebApp.styles.css" asp-append-version="true" />
+</head>
+
+<body>
+    <!-- HEADER CON ANCLAS -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg navbar-light main-navbar">
+            <div class="container">
+                <a class="navbar-brand d-flex align-items-center" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/logo-header.jpeg" alt="Logo Talita Kumi" class="navbar-logo" />
+                    <div class="brand-text ms-2 d-none d-sm-block">
+                        <span class="brand-name">TALITA KUMI</span>
+                        <span class="brand-sub">ESTUDIO DE BELLEZA</span>
+                    </div>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+                    aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarContent">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a class="nav-link" href="#servicios">Servicios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#galeria">Galería</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#contacto">Contacto</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <a href="#reserva" class="btn btn-brand-primary btn-nav-reserve">
+                            <i class="bi bi-calendar2-heart me-1"></i> Reservar
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER: logo · redes · horario -->
+    <footer class="site-footer">
+        <div class="container">
+            <div class="row g-4 align-items-center py-5">
+                <div class="col-lg-4 col-md-6 text-center text-md-start">
+                    <div class="d-flex align-items-center justify-content-center mb-3">
+                        <img src="~/images/logo-footer.jpeg" alt="Talita Kumi" class="footer-logo me-2" />
+                    </div>
+                    <p class="footer-desc mb-0">
+                        Arte, cuidado y dedicación en cada detalle. Uñas, cejas y pestañas hechas a tu medida en un ambiente pensado para tu relax.
+                    </p>
+                </div>
+
+                <div class="col-lg-4 col-md-6 text-center">
+                    <h6 class="footer-heading mb-3">HORARIOS DE ATENCIÓN</h6>
+                    <p class="mb-1 text-white-50"><i class="bi bi-clock me-2"></i><strong>Lun a Sáb:</strong> 10:00 - 19:30 hs</p>
+                    <p class="text-white-50 mb-0"><strong>Dom:</strong> Cerrado</p>
+                    <p class="mt-2 text-white-50 small"><i class="bi bi-geo-alt me-1"></i> Tarapoto, Perú</p>
+                </div>
+
+                <div class="col-lg-4 col-md-12 text-center text-lg-end">
+                    <h6 class="footer-heading mb-3">SÍGUENOS EN REDES</h6>
+                    <div class="social-links justify-content-center justify-content-lg-end d-flex gap-2 mb-3">
+                        <a href="https://instagram.com" target="_blank" class="social-btn" aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="https://tiktok.com" target="_blank" class="social-btn" aria-label="TikTok">
+                            <i class="bi bi-tiktok"></i>
+                        </a>
+                        <a href="https://wa.me/51911345678" target="_blank" class="social-btn" aria-label="WhatsApp">
+                            <i class="bi bi-whatsapp"></i>
+                        </a>
+                    </div>
+                    <a href="#reserva" class="btn btn-outline-brand btn-sm">Agendar Cita Online</a>
+                </div>
+            </div>
+
+            <div class="border-top py-3 text-center small">
+                &copy; @DateTime.Now.Year Talita Kumi - Estudio de Belleza. Todos los derechos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/chatbot.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>
