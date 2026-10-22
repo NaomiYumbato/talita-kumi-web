@@ -254,4 +254,13 @@ public class ReservaService : IReservaService
         if (lower.Contains("cancelad")) return "Cancelada";
         return "Pendiente";
     }
+
+    public async Task<List<Servicio>> ObtenerServiciosActivosAsync()
+    {
+        return await _context.Servicios
+            .Where(s => s.Activo)
+            .OrderBy(s => s.Categoria)
+            .ThenBy(s => s.Nombre)
+            .ToListAsync();
+    }
 }

@@ -13,4 +13,5 @@ public interface IReservaService
     Task<bool> ActualizarEstadoAsync(int id, string nuevoEstado);
     Task<bool> ActualizarNotasAsync(int id, string notas);
     Task<Reserva> CrearReservaManualAsync(TalitaKumiWebApp.ViewModels.Admin.CrearReservaManualViewModel model);
+    Task<List<Servicio>> ObtenerServiciosActivosAsync();
 }

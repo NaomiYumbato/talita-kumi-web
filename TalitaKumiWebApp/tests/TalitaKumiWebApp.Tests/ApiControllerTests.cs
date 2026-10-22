@@ -77,5 +77,6 @@ public class ApiControllerTests
         public Task<bool> ActualizarEstadoAsync(int id, string nuevoEstado) => Task.FromResult(true);
         public Task<bool> ActualizarNotasAsync(int id, string notas) => Task.FromResult(true);
         public Task<Reserva> CrearReservaManualAsync(TalitaKumiWebApp.ViewModels.Admin.CrearReservaManualViewModel model) => Task.FromResult(new Reserva());
+        public Task<List<Servicio>> ObtenerServiciosActivosAsync() => Task.FromResult(new List<Servicio>());
     }
 }

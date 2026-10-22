@@ -98,8 +98,97 @@ public class AdminController : Controller
 
     [HttpGet("Admin")]
     [HttpGet("Admin/Index")]
-    public IActionResult Index()
+    public async Task<IActionResult> Index(DateOnly? fecha, string? busqueda, string? estado)
     {
-        return View();
+        var fechaBase = fecha ?? DateOnly.FromDateTime(DateTime.Today);
+        int delta = (int)fechaBase.DayOfWeek;
+        if (delta == 0) delta = 7;
+        var inicioSemana = fechaBase.AddDays(1 - delta);
+        var finSemana = inicioSemana.AddDays(6);
+
+        var reservasSemana = await _reservaService.ObtenerReservasSemanaAsync(inicioSemana, finSemana);
+        var reservasTabla = await _reservaService.ObtenerReservasFiltradasAsync(fecha, busqueda, estado);
+        var servicios = await _reservaService.ObtenerServiciosActivosAsync();
+
+        var vm = new AdminDashboardViewModel
+        {
+            FechaSeleccionada = fechaBase,
+            InicioSemana = inicioSemana,
+            FinSemana = finSemana,
+            ReservasSemana = reservasSemana,
+            ReservasTabla = reservasTabla,
+            ServiciosDisponibles = servicios,
+            FiltroBusqueda = busqueda,
+            FiltroEstado = estado
+        };
+
+        return View(vm);
+    }
+
+    [HttpPost("Admin/ActualizarEstado")]
+    public async Task<IActionResult> ActualizarEstado([FromBody] ActualizarEstadoRequest req)
+    {
+        if (req == null || req.Id <= 0 || string.IsNullOrWhiteSpace(req.Estado))
+        {
+            return BadRequest(new { success = false, message = "Datos inválidos." });
+        }
+
+        var ok = await _reservaService.ActualizarEstadoAsync(req.Id, req.Estado);
+        if (!ok)
+        {
+            return NotFound(new { success = false, message = "Reserva no encontrada." });
+        }
+
+        var reserva = await _reservaService.ObtenerPorIdAsync(req.Id);
+        return Json(new
+        {
+            success = true,
+            estado = reserva?.Estado,
+            montoAbonado = reserva?.MontoAbonado ?? 0m
+        });
+    }
+
+    [HttpPost("Admin/ActualizarNotas")]
+    public async Task<IActionResult> ActualizarNotas([FromBody] ActualizarNotasRequest req)
+    {
+        if (req == null || req.Id <= 0)
+        {
+            return BadRequest(new { success = false, message = "Datos inválidos." });
+        }
+
+        var ok = await _reservaService.ActualizarNotasAsync(req.Id, req.Notas ?? string.Empty);
+        if (!ok)
+        {
+            return NotFound(new { success = false, message = "Reserva no encontrada." });
+        }
+
+        return Json(new
+        {
+            success = true,
+            notas = req.Notas ?? string.Empty
+        });
+    }
+
+    [HttpPost("Admin/CrearReservaManual")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CrearReservaManual(CrearReservaManualViewModel model)
+    {
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = "Por favor verifica los campos de la reserva.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        try
+        {
+            await _reservaService.CrearReservaManualAsync(model);
+            TempData["Mensaje"] = $"Cita agendada con éxito para {model.Nombre}.";
+        }
+        catch (Exception ex)
+        {
+            TempData["Error"] = $"Error al agendar cita: {ex.Message}";
+        }
+
+        return RedirectToAction(nameof(Index));
     }
 }
