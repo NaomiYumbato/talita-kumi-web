@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Servicio> Servicios => Set<Servicio>();
     public DbSet<Reserva> Reservas => Set<Reserva>();
     public DbSet<CotizacionUñaRegistro> CotizacionesUñas => Set<CotizacionUñaRegistro>();
+    public DbSet<UsuarioAdmin> UsuariosAdmin => Set<UsuarioAdmin>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -42,6 +43,7 @@ public class AppDbContext : DbContext
         {
             entity.HasKey(r => r.Id);
             entity.Property(r => r.PrecioEstimado).HasColumnType("decimal(10,2)");
+            entity.Property(r => r.MontoAbonado).HasColumnType("decimal(10,2)").HasDefaultValue(0.00m);
             entity.Property(r => r.Nombre).IsRequired().HasMaxLength(100);
             entity.Property(r => r.Telefono).IsRequired().HasMaxLength(30);
             entity.Property(r => r.Servicio).IsRequired().HasMaxLength(150);
@@ -72,6 +74,16 @@ public class AppDbContext : DbContext
             entity.Property(c => c.SubtotalArte).HasColumnType("decimal(10,2)");
             entity.Property(c => c.SubtotalRetiro).HasColumnType("decimal(10,2)");
             entity.Property(c => c.PrecioTotalCalculado).HasColumnType("decimal(10,2)");
+        });
+
+        // Usuarios Administradores
+        modelBuilder.Entity<UsuarioAdmin>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.Username).IsUnique();
+            entity.Property(u => u.Username).IsRequired().HasMaxLength(50);
+            entity.Property(u => u.PasswordHash).IsRequired().HasMaxLength(255);
+            entity.Property(u => u.NombreCompleto).IsRequired().HasMaxLength(100);
         });
 
         // Catálogo de Servicios Iniciales con precios en Soles (S/.)

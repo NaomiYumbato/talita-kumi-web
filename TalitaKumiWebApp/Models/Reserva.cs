@@ -29,6 +29,9 @@ public class Reserva
     [Column(TypeName = "decimal(10,2)")]
     public decimal PrecioEstimado { get; set; }
 
+    [Column(TypeName = "decimal(10,2)")]
+    public decimal MontoAbonado { get; set; } = 0.00m;
+
     public int DuracionMinutos { get; set; }
 
     [Required]
