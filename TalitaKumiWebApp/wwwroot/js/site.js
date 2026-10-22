@@ -131,7 +131,7 @@ async function handleBookingSubmit(event) {
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando reserva...';
     }
 
-    // 1. Guardar en SQLite vía API REST
+    // 1. Guardar en Base de Datos (SQL Server) vía API REST
     try {
         await fetch('/api/reservas', {
             method: 'POST',

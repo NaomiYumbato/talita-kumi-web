@@ -1,4 +1,3 @@
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using TalitaKumiWebApp.Data;
 using TalitaKumiWebApp.Models;
@@ -9,17 +8,13 @@ namespace TalitaKumiWebApp.Tests;
 
 public class ReservaServiceTests : IDisposable
 {
-    private readonly SqliteConnection _connection;
     private readonly AppDbContext _context;
     private readonly ReservaService _service;
 
     public ReservaServiceTests()
     {
-        _connection = new SqliteConnection("DataSource=:memory:");
-        _connection.Open();
-
         var options = new DbContextOptionsBuilder<AppDbContext>()
-            .UseSqlite(_connection)
+            .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
             .Options;
 
         _context = new AppDbContext(options);
@@ -30,8 +25,8 @@ public class ReservaServiceTests : IDisposable
 
     public void Dispose()
     {
+        _context.Database.EnsureDeleted();
         _context.Dispose();
-        _connection.Dispose();
     }
 
     [Fact]
