@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Talita Kumi Portal Administrador</title>
+
+    <!-- Google Fonts: Montserrat & Cormorant Garamond -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Bootstrap & Icons -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="icon" type="image/png" href="~/images/site-icon-koi.png" />
+
+    <style>
+        :root {
+            --admin-bg: #FAF6F0;
+            --admin-card: #FFFFFF;
+            --admin-border: #E5DAD0;
+            --admin-koi: #E85D3F;
+            --admin-koi-hover: #CF4B2F;
+            --admin-water: #437694;
+            --admin-water-light: #EAF2F6;
+        }
+
+        body {
+            background-color: var(--admin-bg);
+            color: #2A313C;
+            font-family: 'Montserrat', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .admin-navbar {
+            background-color: #FFFFFF;
+            border-bottom: 1px solid var(--admin-border);
+            box-shadow: 0 2px 10px rgba(67, 118, 148, 0.05);
+            padding: 0.75rem 0;
+        }
+
+        .admin-brand-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--admin-koi), #F5A623);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 3px 8px rgba(232, 93, 63, 0.25);
+        }
+
+        .admin-brand-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 700;
+            font-size: 1.35rem;
+            color: #161B22;
+            letter-spacing: 0.05em;
+            line-height: 1;
+        }
+
+        .admin-brand-badge {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.68rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--admin-water);
+            background: var(--admin-water-light);
+            padding: 0.15rem 0.5rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 0.15rem;
+        }
+
+        .btn-koi {
+            background-color: var(--admin-koi);
+            color: #FFFFFF;
+            border: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            padding: 0.5rem 1.15rem;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 6px rgba(232, 93, 63, 0.2);
+        }
+
+        .btn-koi:hover, .btn-koi:focus {
+            background-color: var(--admin-koi-hover);
+            color: #FFFFFF;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(232, 93, 63, 0.3);
+        }
+
+        .user-greeting {
+            background: #FFFFFF;
+            border: 1px solid var(--admin-border);
+            padding: 0.4rem 0.85rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #2A313C;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .admin-footer {
+            margin-top: auto;
+            background: #FFFFFF;
+            border-top: 1px solid var(--admin-border);
+            padding: 1rem 0;
+            color: #627282;
+            font-size: 0.82rem;
+        }
+    </style>
+</head>
+<body>
+    @Html.AntiForgeryToken()
+
+    <!-- NAVBAR CLARA -->
+    <header class="sticky-top">
+        <nav class="navbar navbar-expand-lg admin-navbar">
+            <div class="container-fluid px-3 px-lg-4">
+                <a class="navbar-brand d-flex align-items-center gap-2" asp-controller="Admin" asp-action="Index">
+                    <div class="admin-brand-icon">TK</div>
+                    <div>
+                        <div class="admin-brand-title">TALITA KUMI</div>
+                        <div class="admin-brand-badge"><i class="bi bi-shield-check me-1"></i>Portal Administrador</div>
+                    </div>
+                </a>
+
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNavbarContent"
+                        aria-controls="adminNavbarContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="adminNavbarContent">
+                    <div class="ms-auto d-flex flex-wrap align-items-center gap-2 mt-2 mt-lg-0">
+                        <span class="user-greeting">
+                            <i class="bi bi-person-circle text-primary"></i>
+                            <span>Hola, <strong>@(User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value ?? "Naomi")</strong></span>
+                        </span>
+
+                        <a href="/" target="_blank" class="btn btn-outline-secondary btn-sm" title="Abrir sitio web de clientas en nueva pestaña">
+                            <i class="bi bi-box-arrow-up-right me-1"></i>Ver Sitio Web
+                        </a>
+
+                        <button type="button" class="btn btn-koi btn-sm" data-bs-toggle="modal" data-bs-target="#modalCrearReserva">
+                            <i class="bi bi-plus-circle me-1"></i> Agendar Cita Manual
+                        </button>
+
+                        <form asp-controller="Admin" asp-action="Logout" method="post" class="d-inline">
+                            @Html.AntiForgeryToken()
+                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión">
+                                <i class="bi bi-box-arrow-right me-1"></i>Salir
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- CONTENIDO -->
+    <main role="main" class="flex-grow-1 py-4">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER CLARO -->
+    <footer class="admin-footer text-center">
+        <div class="container-fluid px-4">
+            <span>&copy; @DateTime.Now.Year <strong>Talita Kumi Estudio de Belleza</strong> — Panel de Control Administrativo</span>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/admin-dashboard.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
