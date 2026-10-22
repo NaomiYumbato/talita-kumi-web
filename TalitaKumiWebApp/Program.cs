@@ -19,6 +19,18 @@ if (File.Exists(envFile))
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+var studioSettings = new TalitaKumiWebApp.Models.StudioSettings();
+builder.Configuration.GetSection("StudioSettings").Bind(studioSettings);
+
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STUDIO_WHATSAPP")))
+    studioSettings.WhatsAppNumber = Environment.GetEnvironmentVariable("STUDIO_WHATSAPP")!;
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STUDIO_INSTAGRAM")))
+    studioSettings.InstagramHandle = Environment.GetEnvironmentVariable("STUDIO_INSTAGRAM")!;
+if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("STUDIO_TIKTOK")))
+    studioSettings.TikTokHandle = Environment.GetEnvironmentVariable("STUDIO_TIKTOK")!;
+
+builder.Services.AddSingleton(studioSettings);
+
 builder.Services.AddControllersWithViews()
     .AddJsonOptions(options =>
     {

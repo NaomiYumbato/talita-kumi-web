@@ -157,30 +157,40 @@ async function handleBookingSubmit(event) {
     }
 
     // 2. Construir mensaje estructurado para WhatsApp (Perú +51)
-    const studioWhatsApp = '51911345678';
+    const studioWhatsApp = (window.StudioConfig && window.StudioConfig.whatsAppNumber) 
+        ? window.StudioConfig.whatsAppNumber 
+        : '51986073098';
     let waText = `¡Hola Talita Kumi! Deseo solicitar una reserva:%0A%0A` +
-        `🌸 *Nombre:* ${encodeURIComponent(name)}%0A` +
-        `📱 *WhatsApp:* ${encodeURIComponent(phone)}%0A` +
-        `💅 *Servicio:* ${encodeURIComponent(servicioFinal)}%0A` +
-        `💰 *Precio Estimado:* S/. ${precioFinal.toFixed(2)}%0A` +
-        `⏱️ *Duración aprox.:* ${duracionFinal} min%0A` +
-        `📅 *Fecha:* ${encodeURIComponent(date)}%0A` +
-        `⏰ *Horario:* ${encodeURIComponent(time)}`;
+        ` *Nombre:* ${encodeURIComponent(name)}%0A` +
+        ` *WhatsApp:* ${encodeURIComponent(phone)}%0A` +
+        ` *Servicio:* ${encodeURIComponent(servicioFinal)}%0A` +
+        ` *Precio Estimado:* S/. ${precioFinal.toFixed(2)}%0A` +
+        ` *Duración aprox.:* ${duracionFinal} min%0A` +
+        ` *Fecha:* ${encodeURIComponent(date)}%0A` +
+        ` *Horario:* ${encodeURIComponent(time)}`;
 
     if (message) {
-        waText += `%0A📝 *Nota adicional:* ${encodeURIComponent(message)}`;
+        waText += `%0A *Nota adicional:* ${encodeURIComponent(message)}`;
     }
 
     if (cotizacionActiva && cotizacionActiva.detalles) {
-        waText += `%0A✨ *Personalización:* ${encodeURIComponent(cotizacionActiva.detalles.join(', '))}`;
+        waText += `%0A *Cotización:* ${encodeURIComponent(cotizacionActiva.detalles.join(', '))}`;
     }
 
     const waUrl = `https://wa.me/${studioWhatsApp}?text=${waText}`;
 
-    // 3. Mostrar feedback visual en la interfaz
+    // 3. Mostrar feedback visual en la interfaz (sin redirección automática)
     const successCard = document.getElementById('bookingSuccess');
     const bookingForm = document.getElementById('bookingForm');
     const btnSendWhatsApp = document.getElementById('btnSendWhatsApp');
+
+    const summaryServicio = document.getElementById('summaryServicio');
+    const summaryFechaHora = document.getElementById('summaryFechaHora');
+    const summaryPrecio = document.getElementById('summaryPrecio');
+
+    if (summaryServicio) summaryServicio.textContent = servicioFinal;
+    if (summaryFechaHora) summaryFechaHora.textContent = `${date} (${time})`;
+    if (summaryPrecio) summaryPrecio.textContent = `S/. ${precioFinal.toFixed(2)}`;
 
     if (btnSendWhatsApp) {
         btnSendWhatsApp.href = waUrl;
@@ -188,14 +198,33 @@ async function handleBookingSubmit(event) {
 
     if (bookingForm && successCard) {
         bookingForm.classList.add('d-none');
+        const cotizacionBanner = document.getElementById('cotizacionBanner');
+        if (cotizacionBanner) {
+            cotizacionBanner.classList.add('d-none');
+        }
         successCard.classList.remove('d-none');
         successCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
+}
 
-    // Abrir WhatsApp automáticamente en una nueva pestaña después de 1 segundo
-    setTimeout(() => {
-        window.open(waUrl, '_blank');
-    }, 1000);
+// Reiniciar formulario para solicitar otra cita
+function reiniciarFormularioReserva() {
+    const successCard = document.getElementById('bookingSuccess');
+    const bookingForm = document.getElementById('bookingForm');
+    
+    if (bookingForm) {
+        bookingForm.reset();
+        bookingForm.classList.remove('d-none');
+    }
+    if (successCard) {
+        successCard.classList.add('d-none');
+    }
+    quitarCotizacionActiva();
+    
+    const seccionReserva = document.getElementById('reserva');
+    if (seccionReserva) {
+        seccionReserva.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
 }
 
 // Inicialización de escuchadores de eventos

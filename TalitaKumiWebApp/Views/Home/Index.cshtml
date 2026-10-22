@@ -1,7 +1,3 @@
-@{
-    ViewData["Title"] = "Uñas, Cejas y Pestañas en Palermo";
-}
-
 <!-- 1. HERO SECTION -->
 <section class="hero-section" id="inicio">
     <div class="container">
@@ -68,7 +64,6 @@
                     <div class="service-img-wrapper">
                         <img src="https://images.unsplash.com/photo-1604654894610-df63bc536371?auto=format&fit=crop&w=800&q=80" 
                              alt="Manicura Rusa y Semipermanente" class="service-img" />
-                        <span class="service-price-badge">Desde S/. 45.00</span>
                     </div>
                     <div class="service-body">
                         <h3 class="service-title">Manicura</h3>
@@ -91,7 +86,6 @@
                     <div class="service-img-wrapper">
                         <img src="https://images.unsplash.com/photo-1519415510236-718bdfcd89c8?auto=format&fit=crop&w=800&q=80" 
                              alt="Pedicura Spa y Belleza de Pies" class="service-img" />
-                        <span class="service-price-badge">Desde S/. 45.00</span>
                     </div>
                     <div class="service-body">
                         <h3 class="service-title">Pedicura</h3>
@@ -114,7 +108,6 @@
                     <div class="service-img-wrapper">
                         <img src="https://images.unsplash.com/photo-1607779097040-26e80aa78e66?auto=format&fit=crop&w=800&q=80" 
                              alt="Diseño Nail Art y Esculpidas" class="service-img" />
-                        <span class="service-price-badge">Desde S/. 15.00</span>
                     </div>
                     <div class="service-body">
                         <h3 class="service-title">Diseño & Nail Art</h3>
@@ -349,8 +342,8 @@
                         </div>
                         <div>
                             <div class="fw-bold mb-1">WhatsApp & Teléfono</div>
-                            <div class="text-muted">+51 911 345 678</div>
-                            <a href="https://wa.me/51911345678" target="_blank" class="small text-decoration-none fw-semibold" style="color: var(--brand-primary);">
+                            <div class="text-muted">@StudioConfig.WhatsAppFormatted</div>
+                            <a href="@StudioConfig.WhatsAppUrl" target="_blank" class="small text-decoration-none fw-semibold" style="color: var(--brand-primary);">
                                 Enviar mensaje directo &rarr;
                             </a>
                         </div>
@@ -362,10 +355,10 @@
                         </div>
                         <div>
                             <div class="fw-bold mb-1">Redes Sociales</div>
-                            <div class="text-muted">@@ttalita_kumi</div>
+                            <div class="text-muted">@@@StudioConfig.InstagramHandle</div>
                             <div class="d-flex gap-2 mt-2">
-                                <a href="https://instagram.com" target="_blank" class="btn btn-sm btn-outline-secondary">Instagram</a>
-                                <a href="https://tiktok.com" target="_blank" class="btn btn-sm btn-outline-secondary">TikTok</a>
+                                <a href="@StudioConfig.InstagramUrl" target="_blank" class="btn btn-sm btn-outline-secondary">Instagram</a>
+                                <a href="@StudioConfig.TikTokUrl" target="_blank" class="btn btn-sm btn-outline-secondary">TikTok</a>
                             </div>
                         </div>
                     </div>
@@ -506,18 +499,60 @@
                                 <button type="submit" class="btn btn-brand-primary btn-lg w-100 py-3 shadow">
                                     <i class="bi bi-send me-2"></i>Enviar solicitud de reserva
                                 </button>
+                                <p class="text-muted small mt-2 mb-0" style="font-size: 0.85rem;">
+                                    <i class="bi bi-info-circle me-1"></i><strong>Nota:</strong> Para cerrar y asegurar tu reserva en agenda se deberá abonar <strong>S/. 20.00</strong> (descontables del total).
+                                </p>
                             </div>
                         </div>
                     </form>
 
                     <!-- Mensaje de confirmación en pantalla -->
-                    <div id="bookingSuccess" class="alert alert-success mt-4 d-none text-center rounded-3 p-4">
-                        <i class="bi bi-check-circle-fill text-success fs-1 mb-2 d-block"></i>
-                        <h4 class="alert-heading">¡Solicitud recibida con éxito!</h4>
-                        <p class="mb-3">Estamos procesando tu turno. Te redirigiremos a WhatsApp para enviar el detalle de tu reserva.</p>
-                        <a id="btnSendWhatsApp" href="#" target="_blank" class="btn btn-success rounded-pill px-4">
-                            <i class="bi bi-whatsapp me-2"></i>Continuar en WhatsApp
-                        </a>
+                    <div id="bookingSuccess" class="alert mt-4 d-none text-center rounded-4 p-4 p-md-5 shadow-sm border-0" style="background-color: #F0FDF4; border: 1px solid #BBF7D0 !important;">
+                        <div class="mb-3">
+                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 70px; height: 70px; background-color: #DCFCE7; color: #16A34A;">
+                                <i class="bi bi-check2-circle fs-1"></i>
+                            </span>
+                        </div>
+                        <h3 class="font-heading fs-2 mb-2" style="color: #14532D;">¡Solicitud registrada con éxito!</h3>
+                        <p class="text-muted mb-4 fs-6">
+                            Tus datos han sido guardados en nuestro sistema.
+                            <br class="d-none d-sm-inline" />
+                            <strong>Paso final:</strong> Para asegurar tu horario en la agenda y finalizar el proceso, haz clic en el siguiente botón para enviar la confirmación por WhatsApp:
+                        </p>
+
+                        <!-- Resumen de la reserva -->
+                        <div class="card border-0 mb-4 p-3 text-start mx-auto" style="max-width: 480px; background-color: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border-radius: 12px;">
+                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                <span class="text-muted small">Servicio:</span>
+                                <strong id="summaryServicio" class="text-dark small text-end">-</strong>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                <span class="text-muted small">Fecha y Turno:</span>
+                                <span id="summaryFechaHora" class="text-dark small text-end">-</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-bottom pb-2 mb-2">
+                                <span class="text-muted small">Total Estimado:</span>
+                                <strong id="summaryPrecio" class="small text-end" style="color: var(--brand-accent);">-</strong>
+                            </div>
+                            <div class="mt-2 pt-2 border-top">
+                                <small class="text-muted d-block" style="font-size: 0.8rem;">
+                                    <i class="bi bi-info-circle me-1 text-primary"></i><strong>Nota:</strong> Para cerrar tu reserva se deberá pagar un abono de S/. 20.00 (a descontar del total).
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- Botón para finalizar -->
+                        <div class="d-flex flex-column align-items-center gap-2">
+                            <a id="btnSendWhatsApp" href="#" target="_blank" class="btn btn-success btn-lg rounded-pill px-4 py-3 shadow-sm fw-bold d-inline-flex align-items-center">
+                                <i class="bi bi-whatsapp me-2 fs-5"></i> Finalizar y Confirmar por WhatsApp
+                            </a>
+                            <small class="text-muted mt-2">
+                                <i class="bi bi-info-circle me-1"></i> Se abrirá WhatsApp con el mensaje listo para enviar con un solo toque.
+                            </small>
+                            <button type="button" class="btn btn-link text-decoration-none text-muted small mt-3" onclick="reiniciarFormularioReserva()">
+                                &larr; Solicitar otra reserva
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

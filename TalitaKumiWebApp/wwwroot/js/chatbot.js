@@ -67,9 +67,6 @@ const Chatbot = (function() {
         const container = document.createElement('div');
         container.id = 'chatbotContainer';
         container.innerHTML = `
-            <div class="chatbot-badge-hint" id="chatbotHint">
-                ✨ ¿Cuánto saldría tu diseño? Cotízalo aquí
-            </div>
             <button class="chatbot-toggle-btn" id="chatbotToggle" aria-label="Abrir cotizador">
                 <i class="bi bi-chat-heart-fill"></i>
             </button>
@@ -77,7 +74,7 @@ const Chatbot = (function() {
             <div class="chatbot-window" id="chatbotWindow">
                 <div class="chatbot-header">
                     <div class="d-flex align-items-center">
-                        <img src="/images/logo-header.jpeg" alt="Talita Kumi Asistente" class="chatbot-avatar" />
+                        <img src="/images/bot-avatar-koi.jpg" alt="Talita Kumi Asistente" class="chatbot-avatar" />
                         <div class="chatbot-title-box">
                             <div class="chatbot-name">Talita Kumi Bot</div>
                             <div class="chatbot-status">
@@ -101,7 +98,6 @@ const Chatbot = (function() {
     function bindEvents() {
         const toggleBtn = document.getElementById('chatbotToggle');
         const closeBtn = document.getElementById('chatbotClose');
-        const hint = document.getElementById('chatbotHint');
 
         toggleBtn.addEventListener('click', () => {
             toggleChat();
@@ -110,12 +106,6 @@ const Chatbot = (function() {
         closeBtn.addEventListener('click', () => {
             closeChat();
         });
-
-        if (hint) {
-            hint.addEventListener('click', () => {
-                openChat();
-            });
-        }
     }
 
     function toggleChat() {
@@ -129,9 +119,7 @@ const Chatbot = (function() {
     function openChat() {
         isOpen = true;
         const win = document.getElementById('chatbotWindow');
-        const hint = document.getElementById('chatbotHint');
         win.classList.add('open');
-        if (hint) hint.style.display = 'none';
 
         if (currentStep === 0 && document.getElementById('chatbotMessages').children.length === 0) {
             renderCurrentStep();
