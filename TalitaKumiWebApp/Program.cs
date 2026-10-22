@@ -62,6 +62,7 @@ builder.Services.AddDbContext<TalitaKumiWebApp.Data.AppDbContext>(options =>
 
 builder.Services.AddSingleton<TalitaKumiWebApp.Services.INailPricingEngine, TalitaKumiWebApp.Services.NailPricingEngine>();
 builder.Services.AddScoped<TalitaKumiWebApp.Services.IReservaService, TalitaKumiWebApp.Services.ReservaService>();
+builder.Services.AddScoped<TalitaKumiWebApp.Services.IAdminAuthService, TalitaKumiWebApp.Services.AdminAuthService>();
 
 var app = builder.Build();
 
@@ -70,6 +71,12 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<TalitaKumiWebApp.Data.AppDbContext>();
     db.Database.EnsureCreated();
+
+    var adminAuth = scope.ServiceProvider.GetRequiredService<TalitaKumiWebApp.Services.IAdminAuthService>();
+    var defaultAdminUser = builder.Configuration["AdminSettings:DefaultUsername"] ?? "naomi";
+    var defaultAdminPass = builder.Configuration["AdminSettings:DefaultPassword"] ?? "TalitaKumi2026*";
+    var defaultAdminName = builder.Configuration["AdminSettings:DefaultNombre"] ?? "Naomi Yumbato";
+    adminAuth.EnsureDefaultAdminUserAsync(defaultAdminUser, defaultAdminPass, defaultAdminName).GetAwaiter().GetResult();
 }
 
 // Configure the HTTP request pipeline.
