@@ -64,6 +64,18 @@ builder.Services.AddSingleton<TalitaKumiWebApp.Services.INailPricingEngine, Tali
 builder.Services.AddScoped<TalitaKumiWebApp.Services.IReservaService, TalitaKumiWebApp.Services.ReservaService>();
 builder.Services.AddScoped<TalitaKumiWebApp.Services.IAdminAuthService, TalitaKumiWebApp.Services.AdminAuthService>();
 
+builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Admin/Login";
+        options.LogoutPath = "/Admin/Logout";
+        options.AccessDeniedPath = "/Admin/Login";
+        options.ExpireTimeSpan = TimeSpan.FromDays(14);
+        options.SlidingExpiration = true;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Lax;
+    });
+
 var app = builder.Build();
 
 // Auto-crear base de datos y tablas en SQL Server (Docker) si no existen
@@ -90,6 +102,7 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseStaticFiles();
