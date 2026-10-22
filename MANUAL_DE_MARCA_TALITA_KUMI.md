@@ -26,7 +26,7 @@ Documento de consulta permanente con la información esencial, operativa, visual
 ## 3. Canales de Contacto y Redes Sociales
 
 * **WhatsApp / Teléfono para Citas:** `925 193 838`
-* **Instagram:** [@ttalita_kumi](https://instagram.com/ttalita_kumi) *(incluye código QR en tarjetas)*
+* **Instagram:** [@ttalita_kumi](https://instagram.com/ttalita_kumi) 
 * **TikTok:** [@ttalita_kumi](https://tiktok.com/@ttalita_kumi)
 
 ---
@@ -79,28 +79,3 @@ Sistema de recompensas diseñado para premiar la recurrencia de los clientes a l
 
 ---
 
-## 8. Materiales Gráficos del Negocio
-
-### A. Tarjetas de Presentación (Línea Celeste Agua & Glitter)
-Diseñadas para entregar a nuevos clientes, incluir en pedidos y compartir en eventos.
-
-| Frente | Reverso (Servicios + QR + Contacto) |
-| :---: | :---: |
-| ![Frente Presentación](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_frente_celeste_hd.jpg) | ![Reverso Presentación](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_reverso_celeste_hd.jpg) |
-
-* **Archivos descargables:**
-  * Frente: [tarjeta_frente_celeste_hd.jpg](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_frente_celeste_hd.jpg) | [tarjeta_frente_celeste_hd.png](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_frente_celeste_hd.png)
-  * Reverso: [tarjeta_reverso_celeste_hd.jpg](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_reverso_celeste_hd.jpg) | [tarjeta_reverso_celeste_hd.png](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_reverso_celeste_hd.png)
-
----
-
-### B. Tarjetas de Fidelidad (Línea Azul Petróleo & Dorado)
-Diseñadas para el seguimiento de visitas y fidelización de clientes recurrentes.
-
-| Frente | Reverso (10 Corazones de Premios) |
-| :---: | :---: |
-| ![Frente Fidelidad](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_fidelidad_frente.jpg) | ![Reverso Fidelidad](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_fidelidad_reverso.jpg) |
-
-* **Archivos descargables:**
-  * Frente Fidelidad: [tarjeta_fidelidad_frente.jpg](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_fidelidad_frente.jpg)
-  * Reverso Fidelidad: [tarjeta_fidelidad_reverso.jpg](file:///Users/kiara/.gemini/antigravity/brain/3837a24d-db41-409e-9472-63e5e4a6d8f3/tarjeta_fidelidad_reverso.jpg)
