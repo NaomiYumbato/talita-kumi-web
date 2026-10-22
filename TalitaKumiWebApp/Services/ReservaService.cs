@@ -48,12 +48,51 @@ public class ReservaService : IReservaService
 
         reserva.ClienteId = cliente.Id;
 
-        // 2. Vincular Servicio del catálogo si coincide
-        var servicio = await _context.Servicios
-            .FirstOrDefaultAsync(s => s.Nombre == reserva.Servicio || reserva.Servicio.StartsWith(s.Nombre));
+        // 2. Vincular Servicio del catálogo si coincide (por Id o por coincidencia inteligente de nombre)
+        Servicio? servicio = null;
+        if (reserva.ServicioId.HasValue && reserva.ServicioId.Value > 0)
+        {
+            servicio = await _context.Servicios.FindAsync(reserva.ServicioId.Value);
+        }
+
+        if (servicio == null && !string.IsNullOrWhiteSpace(reserva.Servicio))
+        {
+            var nombre = reserva.Servicio.Trim();
+            servicio = await _context.Servicios
+                .FirstOrDefaultAsync(s => s.Nombre == nombre || nombre.StartsWith(s.Nombre));
+
+            if (servicio == null)
+            {
+                if (nombre.Contains("Soft Gel", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Soft Gel Tips");
+                else if (nombre.Contains("Kapping", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Kapping Gel");
+                else if (nombre.Contains("Esculpid", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Uñas Esculpidas");
+                else if (nombre.Contains("Semipermanente", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Manicura Semipermanente");
+                else if (nombre.Contains("Lifting", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Lifting de Pestañas");
+                else if (nombre.Contains("Laminado", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Laminado de Cejas");
+                else if (nombre.Contains("Pedicura Completa", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Pedicura Completa con Semipermanente");
+                else if (nombre.Contains("Pedicura", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Pedicura Spa");
+                else if (nombre.Contains("Depilaci", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Depilación Facial con Cera");
+                else if (nombre.Contains("Retiro", StringComparison.OrdinalIgnoreCase))
+                    servicio = await _context.Servicios.FirstOrDefaultAsync(s => s.Nombre == "Retiro de Esmalte o Uñas");
+            }
+        }
+
         if (servicio != null)
         {
             reserva.ServicioId = servicio.Id;
+            if (string.IsNullOrWhiteSpace(reserva.Servicio))
+            {
+                reserva.Servicio = servicio.Nombre;
+            }
         }
 
         reserva.Estado = "Pendiente";

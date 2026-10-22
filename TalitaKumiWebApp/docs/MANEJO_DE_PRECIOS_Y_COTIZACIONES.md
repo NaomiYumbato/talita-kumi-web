@@ -142,21 +142,20 @@ Al enviarse el formulario:
 2. Se asocia la cita en `Reservas` con su `ClienteId`, `ServicioId`, `PrecioEstimado` y `DuracionMinutos`.
 3. Si vino del chatbot, se guarda la fila en `CotizacionesUñas` con los subtotales para auditoría del salón.
 
-### 4. Mensaje a WhatsApp (+51 911 345 678)
+### 4. Mensaje a WhatsApp
 La aplicación genera una URL codificada para WhatsApp web o móvil con este formato:
 
 ```text
 ¡Hola Talita Kumi! Deseo solicitar una reserva:
 
 🌸 Nombre: Valeria Gomez
-📱 WhatsApp: 987112233
 💅 Servicio: Soft Gel (Largo Medio, Arte Francesita)
 💰 Precio Estimado: S/. 120.00
 ⏱️ Duración aprox.: 125 min
 📅 Fecha: 2026-10-25
 ⏰ Horario: Tarde temprano (13:00 a 16:30)
 📝 Nota adicional: Tengo una uña fisurada
-✨ Personalización: Soft Gel Tips: S/. 90.00, Largo Medio: +S/. 15.00, Diseño French: +S/. 15.00
+✨ Cotización: Soft Gel Tips: S/. 90.00, Largo Medio: +S/. 15.00, Diseño French: +S/. 15.00
 ```
 
 ---

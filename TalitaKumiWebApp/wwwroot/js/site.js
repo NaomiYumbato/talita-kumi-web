@@ -112,12 +112,13 @@ async function handleBookingSubmit(event) {
     }
 
     let servicioFinal = selectedOption.value;
+    let serviceIdFinal = parseInt(selectedOption.getAttribute('data-service-id')) || null;
     let precioFinal = parseFloat(selectedOption.getAttribute('data-base-price')) || 45.0;
     let duracionFinal = parseInt(selectedOption.getAttribute('data-duration')) || 60;
     let notasFinales = message;
 
     if (cotizacionActiva) {
-        servicioFinal = cotizacionActiva.resumenServicio;
+        servicioFinal = selectedOption.value;
         precioFinal = cotizacionActiva.precioTotal;
         duracionFinal = cotizacionActiva.duracionMinutos;
         const resumenCotizacion = cotizacionActiva.detalles ? `[Detalle Bot: ${cotizacionActiva.detalles.join(', ')}]` : '';
@@ -139,6 +140,7 @@ async function handleBookingSubmit(event) {
             body: JSON.stringify({
                 nombre: name,
                 telefono: phone,
+                servicioId: serviceIdFinal,
                 servicio: servicioFinal,
                 precioEstimado: precioFinal,
                 duracionMinutos: duracionFinal,
@@ -162,7 +164,6 @@ async function handleBookingSubmit(event) {
         : '51986073098';
     let waText = `¡Hola Talita Kumi! Deseo solicitar una reserva:%0A%0A` +
         ` *Nombre:* ${encodeURIComponent(name)}%0A` +
-        ` *WhatsApp:* ${encodeURIComponent(phone)}%0A` +
         ` *Servicio:* ${encodeURIComponent(servicioFinal)}%0A` +
         ` *Precio Estimado:* S/. ${precioFinal.toFixed(2)}%0A` +
         ` *Duración aprox.:* ${duracionFinal} min%0A` +

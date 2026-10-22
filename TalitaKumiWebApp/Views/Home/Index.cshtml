@@ -420,7 +420,7 @@
                                 <label for="clientName" class="form-label">Nombre y Apellido</label>
                                 <div class="input-group">
                                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-person text-muted"></i></span>
-                                    <input type="text" class="form-control border-start-0" id="clientName" placeholder="Tu nombre" required />
+                                    <input type="text" class="form-control border-start-0" id="clientName" placeholder="Tu nombre y apellido" required />
                                 </div>
                             </div>
 
@@ -439,23 +439,23 @@
                                 <select class="form-select" id="serviceSelect" required>
                                     <option value="" disabled selected>Selecciona un servicio...</option>
                                     <optgroup label="💅 Uñas & Manicura">
-                                        <option value="Manicura Semipermanente" data-is-nail="true" data-base-price="45" data-duration="60">Manicura Semipermanente / Rusa (Desde S/. 45.00 · 1h)</option>
-                                        <option value="Kapping Gel" data-is-nail="true" data-base-price="65" data-duration="75">Kapping Gel / Refuerzo (Desde S/. 65.00 · 1h 15m)</option>
-                                        <option value="Soft Gel Tips" data-is-nail="true" data-base-price="90" data-duration="90">Soft Gel Tips / Extensiones (Desde S/. 90.00 · 1h 30m)</option>
-                                        <option value="Uñas Esculpidas" data-is-nail="true" data-base-price="120" data-duration="120">Uñas Esculpidas en Acrílico (Desde S/. 120.00 · 2h)</option>
+                                        <option value="Manicura Semipermanente" data-service-id="1" data-is-nail="true" data-base-price="45" data-duration="60">Manicura Semipermanente / Rusa (Desde S/. 45.00 · 1h)</option>
+                                        <option value="Kapping Gel" data-service-id="2" data-is-nail="true" data-base-price="65" data-duration="75">Kapping Gel / Refuerzo (Desde S/. 65.00 · 1h 15m)</option>
+                                        <option value="Soft Gel Tips" data-service-id="3" data-is-nail="true" data-base-price="90" data-duration="90">Soft Gel Tips / Extensiones (Desde S/. 90.00 · 1h 30m)</option>
+                                        <option value="Uñas Esculpidas" data-service-id="4" data-is-nail="true" data-base-price="120" data-duration="120">Uñas Esculpidas en Acrílico (Desde S/. 120.00 · 2h)</option>
                                     </optgroup>
                                     <optgroup label="🦶 Pedicura">
-                                        <option value="Pedicura Spa" data-is-nail="false" data-base-price="45" data-duration="45">Pedicura Spa & Rusa (S/. 45.00 · 45m)</option>
-                                        <option value="Pedicura Completa con Semipermanente" data-is-nail="false" data-base-price="65" data-duration="60">Pedicura Spa + Semipermanente (S/. 65.00 · 1h)</option>
+                                        <option value="Pedicura Spa" data-service-id="5" data-is-nail="false" data-base-price="45" data-duration="45">Pedicura Spa & Rusa (S/. 45.00 · 45m)</option>
+                                        <option value="Pedicura Completa con Semipermanente" data-service-id="6" data-is-nail="false" data-base-price="65" data-duration="60">Pedicura Spa + Semipermanente (S/. 65.00 · 1h)</option>
                                     </optgroup>
                                     <optgroup label="👁️ Mirada & Cejas">
-                                        <option value="Lifting de Pestañas" data-is-nail="false" data-base-price="70" data-duration="60">Lifting + Tinte de Pestañas (S/. 70.00 · 1h)</option>
-                                        <option value="Laminado de Cejas" data-is-nail="false" data-base-price="55" data-duration="45">Laminado & Perfilado de Cejas (S/. 55.00 · 45m)</option>
-                                        <option value="Combo Lifting + Laminado" data-is-nail="false" data-base-price="110" data-duration="90">Combo Mirada Completa (S/. 110.00 · 1h 30m)</option>
+                                        <option value="Lifting de Pestañas" data-service-id="7" data-is-nail="false" data-base-price="70" data-duration="60">Lifting + Tinte de Pestañas (S/. 70.00 · 1h)</option>
+                                        <option value="Laminado de Cejas" data-service-id="8" data-is-nail="false" data-base-price="55" data-duration="45">Laminado & Perfilado de Cejas (S/. 55.00 · 45m)</option>
+                                        <option value="Combo Lifting + Laminado" data-service-id="9" data-is-nail="false" data-base-price="110" data-duration="90">Combo Mirada Completa (S/. 110.00 · 1h 30m)</option>
                                     </optgroup>
                                     <optgroup label="✨ Otros Servicios">
-                                        <option value="Depilación Facial con Cera" data-is-nail="false" data-base-price="25" data-duration="20">Depilación Facial con Cera (S/. 25.00 · 20m)</option>
-                                        <option value="Retiro de Esmalte o Uñas" data-is-nail="false" data-base-price="20" data-duration="30">Retiro de Sistema Anterior (S/. 20.00 · 30m)</option>
+                                        <option value="Depilación Facial con Cera" data-service-id="10" data-is-nail="false" data-base-price="25" data-duration="20">Depilación Facial con Cera (S/. 25.00 · 20m)</option>
+                                        <option value="Retiro de Esmalte o Uñas" data-service-id="11" data-is-nail="false" data-base-price="20" data-duration="30">Retiro de Sistema Anterior (S/. 20.00 · 30m)</option>
                                     </optgroup>
                                 </select>
                                 <div id="nailHelperAlert" class="d-none mt-2 p-2 rounded small" style="background-color: #FFF6ED; border: 1px solid #FCD3B6; color: #8A3B22;">

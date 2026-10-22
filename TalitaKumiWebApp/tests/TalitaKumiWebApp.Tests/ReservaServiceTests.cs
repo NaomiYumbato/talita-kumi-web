@@ -89,4 +89,50 @@ public class ReservaServiceTests : IDisposable
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentException>(() => _service.CrearReservaAsync(reserva));
     }
+
+    [Fact]
+    public async Task CrearReserva_DesdeCotizacionBot_AsignaServicioIdCorrectamente()
+    {
+        // Arrange - Reserva con texto generado por el bot
+        var reserva = new Reserva
+        {
+            Nombre = "Valeria Ramos",
+            Telefono = "+51 912 345 678",
+            Servicio = "Soft Gel (Largo Medio, Arte Francesita)",
+            PrecioEstimado = 120m,
+            DuracionMinutos = 125,
+            Fecha = DateOnly.FromDateTime(DateTime.Today.AddDays(2)),
+            Horario = "Tarde (14:00 - 16:30)"
+        };
+
+        // Act
+        var guardada = await _service.CrearReservaAsync(reserva);
+
+        // Assert
+        Assert.NotNull(guardada.ServicioId);
+        Assert.Equal(3, guardada.ServicioId); // Soft Gel Tips tiene Id = 3
+    }
+
+    [Fact]
+    public async Task CrearReserva_ConServicioIdExplicito_AsignaServicioIdDirecto()
+    {
+        // Arrange
+        var reserva = new Reserva
+        {
+            Nombre = "Camila Gomez",
+            Telefono = "+51 999 888 777",
+            ServicioId = 2, // Kapping Gel
+            Servicio = "Kapping Gel",
+            PrecioEstimado = 85m,
+            DuracionMinutos = 90,
+            Fecha = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Horario = "Mañana"
+        };
+
+        // Act
+        var guardada = await _service.CrearReservaAsync(reserva);
+
+        // Assert
+        Assert.Equal(2, guardada.ServicioId);
+    }
 }
