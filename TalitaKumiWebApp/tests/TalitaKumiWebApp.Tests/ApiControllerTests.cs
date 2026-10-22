@@ -71,5 +71,11 @@ public class ApiControllerTests
 
         public Task<List<Reserva>> ObtenerReservasAsync() => Task.FromResult(new List<Reserva>());
         public Task<Reserva?> ObtenerPorIdAsync(int id) => Task.FromResult<Reserva?>(null);
+
+        public Task<List<Reserva>> ObtenerReservasSemanaAsync(DateOnly inicioSemana, DateOnly finSemana) => Task.FromResult(new List<Reserva>());
+        public Task<List<Reserva>> ObtenerReservasFiltradasAsync(DateOnly? fecha, string? busqueda, string? estado) => Task.FromResult(new List<Reserva>());
+        public Task<bool> ActualizarEstadoAsync(int id, string nuevoEstado) => Task.FromResult(true);
+        public Task<bool> ActualizarNotasAsync(int id, string notas) => Task.FromResult(true);
+        public Task<Reserva> CrearReservaManualAsync(TalitaKumiWebApp.ViewModels.Admin.CrearReservaManualViewModel model) => Task.FromResult(new Reserva());
     }
 }
