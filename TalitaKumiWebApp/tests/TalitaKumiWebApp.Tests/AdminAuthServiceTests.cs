@@ -31,4 +31,44 @@ public class AdminAuthServiceTests
         Assert.Equal("Naomi Yumbato", usuario.NombreCompleto);
         Assert.NotNull(usuario.UltimoAcceso);
     }
+
+    [Fact]
+    public async Task AdminAuthService_UpdatePassword_ActualizaPasswordHashYValidaConNuevaClave()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var context = new AppDbContext(options);
+        var service = new AdminAuthService(context);
+
+        await service.EnsureDefaultAdminUserAsync("naomi", "ClaveInicial123", "Naomi");
+
+        var actualizado = await service.UpdatePasswordAsync("naomi", "NuevaClaveSecreta456");
+        Assert.True(actualizado);
+
+        var okVieja = await service.ValidateCredentialsAsync("naomi", "ClaveInicial123");
+        var okNueva = await service.ValidateCredentialsAsync("naomi", "NuevaClaveSecreta456");
+
+        Assert.False(okVieja);
+        Assert.True(okNueva);
+    }
+
+    [Fact]
+    public async Task AdminAuthService_EnsureDefaultAdminUser_SiClaveCambia_ActualizaHashAutomaticamente()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var context = new AppDbContext(options);
+        var service = new AdminAuthService(context);
+
+        await service.EnsureDefaultAdminUserAsync("naomi", "ClaveVersion1", "Naomi");
+        Assert.True(await service.ValidateCredentialsAsync("naomi", "ClaveVersion1"));
+
+        // Se re-ejecuta con una nueva contraseña secreta de entorno
+        await service.EnsureDefaultAdminUserAsync("naomi", "ClaveVersion2Secreta", "Naomi");
+
+        Assert.False(await service.ValidateCredentialsAsync("naomi", "ClaveVersion1"));
+        Assert.True(await service.ValidateCredentialsAsync("naomi", "ClaveVersion2Secreta"));
+    }
 }

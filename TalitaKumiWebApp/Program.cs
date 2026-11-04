@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using TalitaKumiWebApp.Data;
 
 // 1. Cargar variables de entorno desde .env si existe
 var envFile = Path.Combine(Directory.GetCurrentDirectory(), ".env");
@@ -11,7 +12,13 @@ if (File.Exists(envFile))
         var parts = trimmed.Split('=', 2);
         if (parts.Length == 2)
         {
-            Environment.SetEnvironmentVariable(parts[0].Trim(), parts[1].Trim());
+            var key = parts[0].Trim();
+            var val = parts[1].Trim();
+            if ((val.StartsWith('"') && val.EndsWith('"')) || (val.StartsWith('\'') && val.EndsWith('\'')))
+            {
+                val = val.Substring(1, val.Length - 2);
+            }
+            Environment.SetEnvironmentVariable(key, val);
         }
     }
 }
@@ -63,6 +70,7 @@ builder.Services.AddDbContext<TalitaKumiWebApp.Data.AppDbContext>(options =>
 builder.Services.AddSingleton<TalitaKumiWebApp.Services.INailPricingEngine, TalitaKumiWebApp.Services.NailPricingEngine>();
 builder.Services.AddScoped<TalitaKumiWebApp.Services.IReservaService, TalitaKumiWebApp.Services.ReservaService>();
 builder.Services.AddScoped<TalitaKumiWebApp.Services.IAdminAuthService, TalitaKumiWebApp.Services.AdminAuthService>();
+builder.Services.AddDatabaseSchemaSynchronizer();
 
 builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -78,18 +86,8 @@ builder.Services.AddAuthentication(Microsoft.AspNetCore.Authentication.Cookies.C
 
 var app = builder.Build();
 
-// Auto-crear base de datos y tablas en SQL Server (Docker) si no existen
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<TalitaKumiWebApp.Data.AppDbContext>();
-    db.Database.EnsureCreated();
-
-    var adminAuth = scope.ServiceProvider.GetRequiredService<TalitaKumiWebApp.Services.IAdminAuthService>();
-    var defaultAdminUser = builder.Configuration["AdminSettings:DefaultUsername"] ?? "naomi";
-    var defaultAdminPass = builder.Configuration["AdminSettings:DefaultPassword"] ?? "TalitaKumi2026*";
-    var defaultAdminName = builder.Configuration["AdminSettings:DefaultNombre"] ?? "Naomi Yumbato";
-    adminAuth.EnsureDefaultAdminUserAsync(defaultAdminUser, defaultAdminPass, defaultAdminName).GetAwaiter().GetResult();
-}
+// Sincronizar dinámicamente el esquema de base de datos (tablas, columnas, índices faltantes) y sembrar datos iniciales
+await app.Services.EnsureDatabaseSynchronizedAsync(app.Configuration);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -107,6 +105,8 @@ app.UseAuthorization();
 
 app.UseStaticFiles();
 app.MapStaticAssets();
+
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",
