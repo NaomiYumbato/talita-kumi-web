@@ -137,7 +137,7 @@
                                 @foreach (var (diaNombre, diaFecha) in diasSemana)
                                 {
                                     var citasTurno = Model.ReservasSemana
-                                        .Where(r => r.Fecha == diaFecha && (r.Horario != null && r.Horario.Contains(turnoClave)))
+                                        .Where(r => r.Fecha == diaFecha && Model.PerteneceATurno(r.Horario, turnoClave))
                                         .ToList();
 
                                     <td class="p-2 align-top calendar-slot-cell" style="min-width: 170px; height: 115px;">
@@ -234,7 +234,7 @@
                     <h5 class="mb-0 fw-bold fs-6 text-dark d-flex align-items-center gap-2">
                         <i class="bi bi-table text-primary"></i> Gestión de Citas y Reservas
                     </h5>
-                    <span class="text-muted small">Edita notas y actualiza estados directamente en cada fila sin ventanas emergentes</span>
+                    <span class="text-muted small">Consulta observaciones y gestiona estados de cada cita</span>
                 </div>
                 
                 <!-- BARRA DE FILTROS -->
@@ -301,7 +301,9 @@
                                 <tr data-reserva-id="@r.Id">
                                     <!-- FECHA Y TURNO -->
                                     <td class="ps-4">
-                                        <div class="fw-bold text-dark">@r.Fecha.ToString("dd/MM/yyyy")</div>
+                                        <a href="/Admin?fecha=@r.Fecha.ToString("yyyy-MM-dd")" class="fw-bold text-dark text-decoration-none d-inline-flex align-items-center gap-1" title="Ver esta semana en el calendario">
+                                            @r.Fecha.ToString("dd/MM/yyyy") <i class="bi bi-calendar3 small text-muted"></i>
+                                        </a>
                                         <div class="badge bg-light text-secondary border small mt-1">@r.Horario</div>
                                     </td>
 
@@ -329,23 +331,32 @@
                                         </div>
                                     </td>
 
-                                    <!-- NOTAS EDITABLES IN SITU -->
+                                    <!-- NOTAS / OBSERVACIONES (POPUP) -->
                                     <td>
-                                        <div class="input-group input-group-sm">
-                                            <input type="text"
-                                                   class="form-control input-nota"
-                                                   placeholder="Escribe observaciones (alergias, tono, op Yape)..."
-                                                   value="@r.Notas"
-                                                   data-id="@r.Id" />
-                                            <button class="btn btn-outline-secondary btn-guardar-nota"
-                                                    type="button"
+                                        <div class="d-flex align-items-center justify-content-between gap-2">
+                                            <div class="small text-secondary text-truncate celda-nota-texto" style="max-width: 220px;" title="@r.Notas">
+                                                @if (!string.IsNullOrWhiteSpace(r.Notas))
+                                                {
+                                                    <i class="bi bi-sticky-fill text-warning me-1"></i><span class="texto-nota-display">@r.Notas</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted fst-italic texto-nota-display">Sin observaciones</span>
+                                                }
+                                            </div>
+                                            <button type="button"
+                                                    class="btn btn-outline-secondary btn-sm py-1 px-2 btn-abrir-nota text-nowrap"
+                                                    data-bs-toggle="modal"
+                                                    data-bs-target="#modalEditarNota"
                                                     data-id="@r.Id"
-                                                    title="Guardar notas">
-                                                <i class="bi bi-floppy"></i> Guardar
+                                                    data-clienta="@r.Nombre"
+                                                    data-servicio="@r.Servicio"
+                                                    data-fecha="@r.Fecha.ToString("dd/MM/yyyy")"
+                                                    data-horario="@r.Horario"
+                                                    data-notas="@r.Notas"
+                                                    title="Ver y editar observaciones en ventana emergente">
+                                                <i class="bi bi-journal-text me-1"></i>@(string.IsNullOrWhiteSpace(r.Notas) ? "Agregar" : "Ver / Editar")
                                             </button>
-                                        </div>
-                                        <div class="nota-feedback small text-success mt-1 d-none">
-                                            <i class="bi bi-check-circle me-1"></i>Guardado
                                         </div>
                                     </td>
 
@@ -519,6 +530,37 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- ========================================================
+     MODAL 3: VER / EDITAR NOTAS Y OBSERVACIONES (POP-UP SIMPLE)
+     ======================================================== -->
+<div class="modal fade" id="modalEditarNota" tabindex="-1" aria-labelledby="modalEditarNotaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-bottom py-3 px-4" style="background-color: var(--admin-bg);">
+                <h5 class="modal-title fw-bold fs-6 text-dark" id="modalEditarNotaLabel">
+                    <i class="bi bi-sticky-fill text-warning me-2"></i>Notas / Observaciones
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="modalNotaReservaId" value="" />
+                <textarea class="form-control"
+                          id="modalNotaTexto"
+                          rows="6"
+                          placeholder="Escribe aquí las observaciones o notas de la cita..."></textarea>
+            </div>
+            <div class="modal-footer border-top py-3 px-4 bg-light d-flex justify-content-end gap-2">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-koi btn-sm px-3" id="modalNotaBtnGuardar">
+                    <i class="bi bi-floppy me-1"></i> Guardar
+                </button>
+            </div>
         </div>
     </div>
 </div>

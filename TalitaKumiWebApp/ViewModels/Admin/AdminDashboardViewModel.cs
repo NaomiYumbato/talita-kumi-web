@@ -14,4 +14,58 @@ public class AdminDashboardViewModel
 
     public string? FiltroBusqueda { get; set; }
     public string? FiltroEstado { get; set; }
+
+    /// <summary>
+    /// Invoca la verificación de turno directamente desde la vista mediante Model.PerteneceATurno(r.Horario, turnoClave).
+    /// </summary>
+    public bool PerteneceATurno(string? horario, string turnoClave) => CorrespondeATurno(horario, turnoClave);
+
+    /// <summary>
+    /// Determina de forma robusta si el horario de una cita corresponde a un turno clave del calendario ("Mañana", "Tarde 1", "Tarde 2").
+    /// Tolera variaciones históricas como "Tarde Temprano", "Tarde Tarde", "Tarde 1", "Tarde 2", y horas puntuales.
+    /// </summary>
+    public static bool CorrespondeATurno(string? horario, string turnoClave)
+    {
+        if (string.IsNullOrWhiteSpace(horario)) return false;
+        var h = horario.Trim();
+
+        bool esManana = h.Contains("Mañana", StringComparison.OrdinalIgnoreCase);
+        bool esTarde2 = h.Contains("Tarde 2", StringComparison.OrdinalIgnoreCase) ||
+                        h.Contains("Tarde Tarde", StringComparison.OrdinalIgnoreCase) ||
+                        h.Contains("Noche", StringComparison.OrdinalIgnoreCase);
+        bool esTarde1 = h.Contains("Tarde 1", StringComparison.OrdinalIgnoreCase) ||
+                        h.Contains("Temprano", StringComparison.OrdinalIgnoreCase);
+
+        // Si no coincide con las palabras clave exactas, analizar por hora o contexto
+        if (!esManana && !esTarde1 && !esTarde2)
+        {
+            if (h.Contains("Tarde", StringComparison.OrdinalIgnoreCase))
+            {
+                if (h.Contains("17:") || h.Contains("18:") || h.Contains("19:") || h.Contains("20:"))
+                    esTarde2 = true;
+                else
+                    esTarde1 = true;
+            }
+            else if (h.Contains("10:") || h.Contains("11:") || h.Contains("12:"))
+            {
+                esManana = true;
+            }
+            else if (h.Contains("13:") || h.Contains("14:") || h.Contains("15:") || h.Contains("16:00"))
+            {
+                esTarde1 = true;
+            }
+            else if (h.Contains("16:30") || h.Contains("17:") || h.Contains("18:") || h.Contains("19:"))
+            {
+                esTarde2 = true;
+            }
+        }
+
+        return turnoClave switch
+        {
+            "Mañana" => esManana,
+            "Tarde 1" => esTarde1,
+            "Tarde 2" => esTarde2,
+            _ => h.Contains(turnoClave, StringComparison.OrdinalIgnoreCase)
+        };
+    }
 }

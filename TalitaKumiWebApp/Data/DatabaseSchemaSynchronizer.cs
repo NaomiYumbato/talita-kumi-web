@@ -107,6 +107,22 @@ public class DatabaseSchemaSynchronizer : IDatabaseSchemaSynchronizer
             }
         }
 
+        // C. Normalizar formatos históricos de turnos en Reservas
+        if (tablasExistentes.Contains("Reservas"))
+        {
+            try
+            {
+                await context.Database.ExecuteSqlRawAsync(
+                    "UPDATE [Reservas] SET [Horario] = 'Tarde 1 (13:00 a 16:30)' WHERE [Horario] = 'Tarde Temprano (13:00 a 16:30)'; " +
+                    "UPDATE [Reservas] SET [Horario] = 'Tarde 2 (16:30 a 19:30)' WHERE [Horario] = 'Tarde Tarde (16:30 a 19:30)';",
+                    cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "[SchemaSync] Advertencia al normalizar horarios en Reservas.");
+            }
+        }
+
         if (result.HasChanges)
         {
             _logger.LogInformation("[SchemaSync] Sincronización completada: {Tablas} tablas, {Cols} columnas, {Indices} índices agregados.",

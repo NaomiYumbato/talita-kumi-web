@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initCalendarModal();
     initServiceSelector();
     initStatusDropdowns();
-    initNotesInlineEditor();
+    initNotesModalEditor();
 });
 
 // Toast auxiliar para retroalimentación instantánea
@@ -190,23 +190,48 @@ function initStatusDropdowns() {
     });
 }
 
-// 5. Edición de notas in situ en la tabla
-function initNotesInlineEditor() {
-    const buttons = document.querySelectorAll('.btn-guardar-nota');
+// 5. Edición de notas y observaciones mediante Modal Pop-up Simple
+function initNotesModalEditor() {
+    const modalEl = document.getElementById('modalEditarNota');
+    if (!modalEl) return;
 
-    buttons.forEach(btn => {
-        btn.addEventListener('click', async () => {
-            const id = parseInt(btn.getAttribute('data-id'), 10);
-            const row = btn.closest('tr');
-            const input = row ? row.querySelector('.input-nota') : null;
-            const feedback = row ? row.querySelector('.nota-feedback') : null;
+    const inputId = document.getElementById('modalNotaReservaId');
+    const textarea = document.getElementById('modalNotaTexto');
+    const btnGuardar = document.getElementById('modalNotaBtnGuardar');
 
-            if (!input) return;
+    // Al abrir el modal, cargar la nota de la fila
+    modalEl.addEventListener('show.bs.modal', (event) => {
+        const btn = event.relatedTarget;
+        if (!btn) return;
 
-            const notasTexto = input.value.trim();
-            const originalHtml = btn.innerHTML;
-            btn.innerHTML = `<span class="spinner-border spinner-border-sm" role="status"></span>`;
-            btn.disabled = true;
+        const id = btn.getAttribute('data-id') || '';
+        const notas = btn.getAttribute('data-notas') || '';
+
+        if (inputId) inputId.value = id;
+        if (textarea) textarea.value = notas;
+    });
+
+    // Autoenfoque en el área de texto al abrirse
+    modalEl.addEventListener('shown.bs.modal', () => {
+        if (textarea) {
+            textarea.focus();
+            const len = textarea.value.length;
+            textarea.setSelectionRange(len, len);
+        }
+    });
+
+    // Guardar cambios vía AJAX
+    if (btnGuardar) {
+        btnGuardar.addEventListener('click', async () => {
+            const idVal = inputId ? inputId.value : '';
+            const id = parseInt(idVal, 10);
+            const notasTexto = textarea ? textarea.value.trim() : '';
+
+            if (isNaN(id) || id <= 0) return;
+
+            const originalHtml = btnGuardar.innerHTML;
+            btnGuardar.innerHTML = `<span class="spinner-border spinner-border-sm me-1" role="status"></span> Guardando...`;
+            btnGuardar.disabled = true;
 
             try {
                 const response = await fetch('/Admin/ActualizarNotas', {
@@ -219,48 +244,81 @@ function initNotesInlineEditor() {
                 });
 
                 if (!response.ok) {
-                    throw new Error('Error al guardar notas.');
+                    throw new Error('Error al guardar las notas.');
                 }
 
                 const data = await response.json();
                 if (data.success) {
-                    btn.innerHTML = `<i class="bi bi-check2"></i>`;
-                    btn.classList.replace('btn-outline-secondary', 'btn-outline-success');
+                    const notasFinales = data.notas || '';
+                    const tieneNotas = notasFinales.trim().length > 0;
 
-                    if (feedback) {
-                        feedback.classList.remove('d-none');
-                        setTimeout(() => feedback.classList.add('d-none'), 2500);
+                    // 1. Actualizar el botón y el snippet en la fila de la tabla
+                    const triggerBtn = document.querySelector(`.btn-abrir-nota[data-id="${id}"]`);
+                    if (triggerBtn) {
+                        triggerBtn.setAttribute('data-notas', notasFinales);
+                        triggerBtn.innerHTML = `<i class="bi bi-journal-text me-1"></i>${tieneNotas ? 'Ver / Editar' : 'Agregar'}`;
+
+                        const cellContainer = triggerBtn.closest('td');
+                        if (cellContainer) {
+                            const snippet = cellContainer.querySelector('.celda-nota-texto');
+                            if (snippet) {
+                                snippet.setAttribute('title', notasFinales);
+                                if (tieneNotas) {
+                                    snippet.innerHTML = `<i class="bi bi-sticky-fill text-warning me-1"></i><span class="texto-nota-display">${escapeHtml(notasFinales)}</span>`;
+                                } else {
+                                    snippet.innerHTML = `<span class="text-muted fst-italic texto-nota-display">Sin observaciones</span>`;
+                                }
+                            }
+                        }
                     }
 
-                    showAdminToast('Notas guardadas correctamente.');
+                    // 2. Si existe la tarjeta en el calendario superior, actualizar data-notas e ícono
+                    const card = document.querySelector(`.appointment-card[data-id="${id}"]`);
+                    if (card) {
+                        card.setAttribute('data-notas', notasFinales);
+                        const topHeader = card.querySelector('.d-flex.justify-content-between');
+                        const noteIcon = card.querySelector('.bi-sticky-fill')?.closest('span');
+                        if (tieneNotas) {
+                            if (!noteIcon && topHeader) {
+                                const iconSpan = document.createElement('span');
+                                iconSpan.className = 'text-danger small';
+                                iconSpan.title = 'Tiene notas u observaciones';
+                                iconSpan.innerHTML = '<i class="bi bi-sticky-fill"></i>';
+                                topHeader.appendChild(iconSpan);
+                            }
+                        } else if (noteIcon) {
+                            noteIcon.remove();
+                        }
+                    }
 
-                    setTimeout(() => {
-                        btn.innerHTML = originalHtml;
-                        btn.classList.replace('btn-outline-success', 'btn-outline-secondary');
-                        btn.disabled = false;
-                    }, 1800);
+                    // 3. Cerrar el modal
+                    const modalInstance = bootstrap.Modal.getInstance(modalEl);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
+                    showAdminToast('Notas guardadas.');
                 } else {
-                    throw new Error(data.message || 'No se pudo guardar.');
+                    throw new Error(data.message || 'No se pudo guardar la nota.');
                 }
             } catch (err) {
-                btn.innerHTML = originalHtml;
-                btn.disabled = false;
                 showAdminToast(err.message || 'Error al conectar con el servidor.', true);
+            } finally {
+                btnGuardar.innerHTML = originalHtml;
+                btnGuardar.disabled = false;
             }
         });
-    });
+    }
+}
 
-    // Guardar con Enter en el input
-    document.querySelectorAll('.input-nota').forEach(input => {
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                const row = input.closest('tr');
-                const btn = row ? row.querySelector('.btn-guardar-nota') : null;
-                if (btn) btn.click();
-            }
-        });
-    });
+function escapeHtml(text) {
+    if (!text) return '';
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
 }
 
 function getAntiForgeryToken() {

@@ -124,6 +124,27 @@ public class AdminDashboardControllerTests
         Assert.Equal("Gloria Paz", creada.Nombre);
     }
 
+    [Theory]
+    [InlineData("Tarde Tarde (16:30 a 19:30)", "Tarde 2")]
+    [InlineData("Tarde Temprano (13:00 a 16:30)", "Tarde 1")]
+    [InlineData("Mañana (10:00 a 13:00)", "Mañana")]
+    [InlineData("Tarde 1 (13:00 a 16:30)", "Tarde 1")]
+    [InlineData("Tarde 2 (16:30 a 19:30)", "Tarde 2")]
+    [InlineData("14:00", "Tarde 1")]
+    [InlineData("17:30", "Tarde 2")]
+    [InlineData("10:30", "Mañana")]
+    public void CorrespondeATurno_MapeaCorrectamenteATurnosDelCalendario(string horario, string turnoEsperado)
+    {
+        Assert.True(AdminDashboardViewModel.CorrespondeATurno(horario, turnoEsperado));
+        
+        // Debe ser exclusivo (no coincidir con otros turnos)
+        var otrosTurnos = new[] { "Mañana", "Tarde 1", "Tarde 2" }.Where(t => t != turnoEsperado);
+        foreach (var otro in otrosTurnos)
+        {
+            Assert.False(AdminDashboardViewModel.CorrespondeATurno(horario, otro), $"'{horario}' no debería coincidir con '{otro}'");
+        }
+    }
+
     private class MockTempDataProvider : ITempDataProvider
     {
         private readonly Dictionary<string, object> _data = new();
