@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initServiceSelector();
     initStatusDropdowns();
     initNotesModalEditor();
+    initAdminAvailability();
 });
 
 // Toast auxiliar para retroalimentación instantánea
@@ -83,6 +84,12 @@ function initCalendarModal() {
 }
 
 // 2. Prellenar Modal de Cita Manual al dar clic en casilla libre del calendario
+const TURNOS_CATALOGO = [
+    { key: 'Mañana', value: 'Mañana (10:00 a 13:00)', label: 'Mañana (10:00 - 13:00)' },
+    { key: 'Tarde 1', value: 'Tarde 1 (13:00 a 16:30)', label: 'Tarde 1 (13:00 - 16:30)' },
+    { key: 'Tarde 2', value: 'Tarde 2 (16:30 a 19:30)', label: 'Tarde 2 (16:30 - 19:30)' }
+];
+
 window.prellenarCitaManual = function (fechaIso, turno) {
     const modalEl = document.getElementById('modalCrearReserva');
     if (!modalEl) return;
@@ -90,19 +97,110 @@ window.prellenarCitaManual = function (fechaIso, turno) {
     const inputFecha = document.getElementById('crearFecha');
     if (inputFecha) inputFecha.value = fechaIso;
 
-    const selectHorario = document.getElementById('crearHorario');
-    if (selectHorario) {
-        for (let i = 0; i < selectHorario.options.length; i++) {
-            if (selectHorario.options[i].value.includes(turno)) {
-                selectHorario.selectedIndex = i;
-                break;
-            }
-        }
-    }
+    actualizarDisponibilidadAdmin(fechaIso, turno);
 
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
 };
+
+async function actualizarDisponibilidadAdmin(fechaIso, turnoSeleccionar = null) {
+    const selectHorario = document.getElementById('crearHorario');
+    const alertBox = document.getElementById('crearAlertaDisponibilidad');
+    const alertText = document.getElementById('crearAlertaDisponibilidadTexto');
+    const submitBtn = document.getElementById('btnSubmitCrearReserva');
+
+    if (!selectHorario || !fechaIso) return;
+
+    // Verificar si es domingo
+    const parts = fechaIso.split('-').map(Number);
+    const dayOfWeek = new Date(parts[0], parts[1] - 1, parts[2]).getDay();
+
+    if (dayOfWeek === 0) {
+        if (alertBox && alertText) {
+            alertText.textContent = 'Atención: Los domingos el estudio se encuentra cerrado.';
+            alertBox.classList.remove('d-none');
+        }
+    } else if (alertBox) {
+        alertBox.classList.add('d-none');
+    }
+
+    try {
+        const resp = await fetch(`/api/reservas/disponibilidad?fecha=${encodeURIComponent(fechaIso)}`);
+        if (!resp.ok) return;
+
+        const data = await resp.json();
+        const ocupados = data.turnosOcupados || [];
+        const disponibles = data.turnosDisponibles || [];
+
+        selectHorario.innerHTML = '';
+
+        if (disponibles.length === 0) {
+            const opt = document.createElement('option');
+            opt.value = '';
+            opt.textContent = '⚠️ Todos los turnos están ocupados';
+            opt.disabled = true;
+            opt.selected = true;
+            selectHorario.appendChild(opt);
+
+            if (alertBox && alertText) {
+                alertText.textContent = `No hay turnos disponibles para el ${fechaIso}. Los 3 turnos ya están reservados.`;
+                alertBox.classList.remove('d-none');
+            }
+            if (submitBtn) submitBtn.disabled = true;
+            return;
+        }
+
+        if (submitBtn) submitBtn.disabled = false;
+        if (dayOfWeek !== 0 && alertBox) {
+            alertBox.classList.add('d-none');
+        }
+
+        let preseleccionHecha = false;
+
+        TURNOS_CATALOGO.forEach(t => {
+            const estaOcupado = ocupados.some(o => o.includes(t.key) || o === t.value);
+            if (!estaOcupado) {
+                const opt = document.createElement('option');
+                opt.value = t.value;
+                opt.textContent = t.label;
+
+                if (turnoSeleccionar && (turnoSeleccionar.includes(t.key) || t.value.includes(turnoSeleccionar))) {
+                    opt.selected = true;
+                    preseleccionHecha = true;
+                }
+
+                selectHorario.appendChild(opt);
+            }
+        });
+
+        if (!preseleccionHecha && selectHorario.options.length > 0) {
+            selectHorario.selectedIndex = 0;
+        }
+    } catch (err) {
+        console.error('Error al consultar disponibilidad en admin:', err);
+    }
+}
+
+function initAdminAvailability() {
+    const inputFecha = document.getElementById('crearFecha');
+    const modalEl = document.getElementById('modalCrearReserva');
+
+    if (inputFecha) {
+        inputFecha.addEventListener('change', () => {
+            actualizarDisponibilidadAdmin(inputFecha.value);
+        });
+    }
+
+    if (modalEl) {
+        modalEl.addEventListener('show.bs.modal', (event) => {
+            if (!event.relatedTarget || !event.relatedTarget.classList.contains('slot-empty')) {
+                if (inputFecha && inputFecha.value) {
+                    actualizarDisponibilidadAdmin(inputFecha.value);
+                }
+            }
+        });
+    }
+}
 
 // 3. Selección asistida de servicio en creación manual
 function initServiceSelector() {
@@ -176,6 +274,9 @@ function initStatusDropdowns() {
                             abonoCell.classList.remove('text-muted');
                         }
                     }
+
+                    // Sincronizar automáticamente el calendario semanal superior sin recargar página
+                    actualizarCalendarioPorCambioEstado(row, nuevoEstado, data.montoAbonado);
                 } else {
                     throw new Error(data.message || 'No se pudo actualizar.');
                 }
@@ -188,6 +289,186 @@ function initStatusDropdowns() {
             }
         });
     });
+}
+
+// Sincronización en vivo del calendario semanal superior
+function actualizarCalendarioPorCambioEstado(row, nuevoEstado, montoAbonado) {
+    if (!row) return;
+
+    const id = row.getAttribute('data-reserva-id');
+    const fechaIso = row.getAttribute('data-fecha-iso');
+    const turnoClave = row.getAttribute('data-turno-clave');
+    const fechaDisplay = row.getAttribute('data-fecha-display');
+    const horario = row.getAttribute('data-horario');
+    const nombre = row.getAttribute('data-nombre');
+    const telefono = row.getAttribute('data-telefono');
+    const servicio = row.getAttribute('data-servicio');
+    const precio = row.getAttribute('data-precio') || '0.00';
+    const notas = row.getAttribute('data-notas') || '';
+
+    // Actualizar atributos en la fila de la tabla
+    row.setAttribute('data-estado', nuevoEstado);
+    if (montoAbonado !== undefined && montoAbonado !== null) {
+        row.setAttribute('data-abono', montoAbonado);
+    }
+    const abonoFinal = montoAbonado !== undefined && montoAbonado !== null 
+        ? montoAbonado 
+        : (row.getAttribute('data-abono') || '0.00');
+
+    // Determinar estilo y texto del badge
+    let badgeColor = 'border-warning bg-warning-subtle text-warning-emphasis';
+    let estadoIcon = '🟡 Pendiente';
+
+    if (nuevoEstado === 'Confirmada') {
+        badgeColor = 'border-success bg-success-subtle text-success-emphasis';
+        estadoIcon = '🟢 Confirmada';
+    } else if (nuevoEstado === 'Completada') {
+        badgeColor = 'border-primary bg-primary-subtle text-primary-emphasis';
+        estadoIcon = '🔵 Finalizada';
+    } else if (nuevoEstado === 'Cancelada') {
+        badgeColor = 'border-danger bg-danger-subtle text-danger-emphasis';
+        estadoIcon = '🔴 Cancelada';
+    }
+
+    // 1. Buscar si la tarjeta ya existe en el calendario semanal
+    let card = document.querySelector(`.appointment-card[data-id="${id}"]`);
+
+    if (card) {
+        card.setAttribute('data-estado', nuevoEstado);
+        card.setAttribute('data-abono', abonoFinal);
+
+        const badge = card.querySelector('.badge');
+        if (badge) {
+            badge.className = `badge border ${badgeColor}`;
+            badge.style.fontSize = '0.68rem';
+            badge.textContent = estadoIcon;
+        }
+
+        const priceRow = card.querySelector('.d-flex.justify-content-between.align-items-center.mt-1');
+        if (priceRow) {
+            let abonoSpan = priceRow.querySelector('.text-success');
+            if (parseFloat(abonoFinal) > 0) {
+                if (!abonoSpan) {
+                    abonoSpan = document.createElement('span');
+                    abonoSpan.className = 'text-success fw-bold';
+                    abonoSpan.title = 'Abonó';
+                    priceRow.appendChild(abonoSpan);
+                }
+                abonoSpan.textContent = `✓ S/. ${parseFloat(abonoFinal).toFixed(2)}`;
+            } else if (abonoSpan) {
+                abonoSpan.remove();
+            }
+        }
+
+        const cell = card.closest('.calendar-slot-cell');
+        if (cell) {
+            const activeCards = cell.querySelectorAll('.appointment-card:not([data-estado="Cancelada"])');
+            let freedBtn = cell.querySelector('.slot-freed-action');
+            if (activeCards.length === 0) {
+                if (!freedBtn) {
+                    freedBtn = document.createElement('div');
+                    freedBtn.className = 'slot-freed-action mt-1 text-center';
+                    freedBtn.innerHTML = `
+                        <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 small w-100" style="font-size: 0.7rem;" onclick="prellenarCitaManual('${fechaIso}', '${turnoClave}')">
+                            <i class="bi bi-plus-lg"></i> Turno libre
+                        </button>
+                    `;
+                    cell.appendChild(freedBtn);
+                }
+            } else if (freedBtn) {
+                freedBtn.remove();
+            }
+        }
+
+        // Animación suave de confirmación
+        card.classList.add('border-primary', 'shadow');
+        setTimeout(() => {
+            card.classList.remove('border-primary', 'shadow');
+        }, 1200);
+    } else {
+        // Si no está en el calendario semanal pero su fecha y turno corresponden a la semana mostrada
+        const cell = document.querySelector(`.calendar-slot-cell[data-fecha="${fechaIso}"][data-turno="${turnoClave}"]`);
+        if (cell) {
+            const slotEmpty = cell.querySelector('.slot-empty');
+            if (slotEmpty) slotEmpty.remove();
+
+            const tieneNotas = notas && notas.trim().length > 0;
+            const tieneAbono = parseFloat(abonoFinal) > 0;
+
+            const newCard = document.createElement('div');
+            newCard.className = 'appointment-card border rounded-3 p-2 shadow-sm mb-1 bg-white cursor-pointer';
+            newCard.setAttribute('role', 'button');
+            newCard.setAttribute('tabindex', '0');
+            newCard.setAttribute('data-bs-toggle', 'modal');
+            newCard.setAttribute('data-bs-target', '#modalDetalleCita');
+            newCard.setAttribute('data-id', id);
+            newCard.setAttribute('data-nombre', nombre);
+            newCard.setAttribute('data-telefono', telefono);
+            newCard.setAttribute('data-servicio', servicio);
+            newCard.setAttribute('data-precio', precio);
+            newCard.setAttribute('data-abono', abonoFinal);
+            newCard.setAttribute('data-fecha', fechaDisplay || fechaIso);
+            newCard.setAttribute('data-horario', horario);
+            newCard.setAttribute('data-estado', nuevoEstado);
+            newCard.setAttribute('data-notas', notas);
+
+            newCard.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="badge border ${badgeColor}" style="font-size: 0.68rem;">
+                        ${estadoIcon}
+                    </span>
+                    ${tieneNotas ? '<span title="Tiene notas u observaciones" class="text-danger small"><i class="bi bi-sticky-fill"></i></span>' : ''}
+                </div>
+                <div class="fw-bold text-truncate text-dark small" title="${escapeHtml(nombre)}">
+                    ${escapeHtml(nombre)}
+                </div>
+                <div class="text-muted text-truncate" style="font-size: 0.75rem;" title="${escapeHtml(servicio)}">
+                    ${escapeHtml(servicio)}
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-1" style="font-size: 0.75rem;">
+                    <span class="fw-semibold text-secondary">S/. ${parseFloat(precio).toFixed(2)}</span>
+                    ${tieneAbono ? `<span class="text-success fw-bold" title="Abonó">✓ S/. ${parseFloat(abonoFinal).toFixed(2)}</span>` : ''}
+                </div>
+            `;
+
+            cell.appendChild(newCard);
+
+            if (nuevoEstado === 'Cancelada') {
+                const freedBtn = document.createElement('div');
+                freedBtn.className = 'slot-freed-action mt-1 text-center';
+                freedBtn.innerHTML = `
+                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 small w-100" style="font-size: 0.7rem;" onclick="prellenarCitaManual('${fechaIso}', '${turnoClave}')">
+                        <i class="bi bi-plus-lg"></i> Turno libre
+                    </button>
+                `;
+                cell.appendChild(freedBtn);
+            }
+        }
+    }
+
+    // Actualizar contadores semanales
+    actualizarContadoresSemana();
+}
+
+function actualizarContadoresSemana() {
+    const cards = document.querySelectorAll('.calendar-grid-table .appointment-card');
+    let total = cards.length;
+    let confirmadas = 0;
+    let pendientes = 0;
+
+    cards.forEach(c => {
+        const est = c.getAttribute('data-estado');
+        if (est === 'Confirmada') confirmadas++;
+        else if (est === 'Pendiente') pendientes++;
+    });
+
+    const elTotal = document.getElementById('contadorTotalSemana');
+    const elConfirmadas = document.getElementById('contadorConfirmadasSemana');
+    const elPendientes = document.getElementById('contadorPendientesSemana');
+
+    if (elTotal) elTotal.textContent = total;
+    if (elConfirmadas) elConfirmadas.textContent = confirmadas;
+    if (elPendientes) elPendientes.textContent = pendientes;
 }
 
 // 5. Edición de notas y observaciones mediante Modal Pop-up Simple

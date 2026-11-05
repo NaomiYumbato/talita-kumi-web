@@ -3,6 +3,12 @@
 // ========================================================
 
 let cotizacionActiva = null;
+let fechasOcupadasSet = new Set();
+const MAPA_LABELS_TURNO = {
+    'Mañana (10:00 a 13:00)': 'Mañana (10:00 a 13:00)',
+    'Tarde 1 (13:00 a 16:30)': 'Tarde 1 - Temprano (13:00 a 16:30)',
+    'Tarde 2 (16:30 a 19:30)': 'Tarde 2 - Tarde (16:30 a 19:30)'
+};
 
 // Preseleccionar servicio desde las tarjetas y enfocar formulario
 function preselectService(serviceName) {
@@ -94,6 +100,135 @@ function actualizarAlertaNailHelper() {
     }
 }
 
+// Manejo de alertas y disponibilidad del selector de fechas/turnos
+function mostrarAlertaFecha(mensaje) {
+    const alertBox = document.getElementById('bookingDateAlert');
+    const alertText = document.getElementById('bookingDateAlertText');
+    if (alertBox && alertText) {
+        alertText.textContent = mensaje;
+        alertBox.classList.remove('d-none');
+    } else {
+        alert(mensaje);
+    }
+}
+
+function ocultarAlertaFecha() {
+    const alertBox = document.getElementById('bookingDateAlert');
+    if (alertBox) alertBox.classList.add('d-none');
+}
+
+function resetBookingTime(placeholderText = 'Selecciona una fecha primero...') {
+    const bookingTime = document.getElementById('bookingTime');
+    if (!bookingTime) return;
+    bookingTime.innerHTML = `<option value="" disabled selected>${placeholderText}</option>`;
+    bookingTime.disabled = true;
+}
+
+async function cargarFechasOcupadas() {
+    try {
+        const resp = await fetch('/api/reservas/fechas-ocupadas');
+        if (resp.ok) {
+            const fechas = await resp.json();
+            fechasOcupadasSet = new Set(fechas);
+        }
+    } catch (err) {
+        console.warn('No se pudo precargar fechas ocupadas:', err);
+    }
+}
+
+async function refrescarDisponibilidadFecha(fecha) {
+    const dateInput = document.getElementById('bookingDate');
+    const bookingTime = document.getElementById('bookingTime');
+    if (!fecha || !bookingTime) return;
+
+    try {
+        const resp = await fetch(`/api/reservas/disponibilidad?fecha=${encodeURIComponent(fecha)}`);
+        if (!resp.ok) return;
+
+        const disp = await resp.json();
+        if (disp.estaCompletamenteOcupado || !disp.turnosDisponibles || disp.turnosDisponibles.length === 0) {
+            fechasOcupadasSet.add(fecha);
+            mostrarAlertaFecha('Esta fecha ya tiene sus 3 turnos ocupados. Por favor selecciona otra fecha disponible.');
+            if (dateInput) dateInput.value = '';
+            resetBookingTime('Fecha sin turnos disponibles...');
+            return;
+        }
+
+        ocultarAlertaFecha();
+        bookingTime.innerHTML = `<option value="" disabled selected>Elige un turno disponible (${disp.turnosDisponibles.length} disponible${disp.turnosDisponibles.length > 1 ? 's' : ''})...</option>`;
+        
+        disp.turnosDisponibles.forEach(t => {
+            const opt = document.createElement('option');
+            opt.value = t;
+            opt.textContent = MAPA_LABELS_TURNO[t] || t;
+            bookingTime.appendChild(opt);
+        });
+
+        bookingTime.disabled = false;
+    } catch (err) {
+        console.error('Error al consultar disponibilidad:', err);
+    }
+}
+
+function initBookingAvailability() {
+    const dateInput = document.getElementById('bookingDate');
+    const bookingTime = document.getElementById('bookingTime');
+    if (!dateInput) return;
+
+    cargarFechasOcupadas();
+
+    if (bookingTime && !dateInput.value) {
+        resetBookingTime('Selecciona una fecha primero...');
+    }
+
+    const onDateChanged = async () => {
+        const val = dateInput.value;
+        if (!val) {
+            ocultarAlertaFecha();
+            resetBookingTime('Selecciona una fecha primero...');
+            return;
+        }
+
+        // 1. Validar fecha pasada
+        const todayIso = new Date().toISOString().split('T')[0];
+        if (val < todayIso) {
+            mostrarAlertaFecha('No puedes seleccionar una fecha anterior al día de hoy.');
+            dateInput.value = '';
+            resetBookingTime('Selecciona una fecha válida...');
+            return;
+        }
+
+        // 2. Validar Domingo (cerrado)
+        const parts = val.split('-').map(Number);
+        const dayOfWeek = new Date(parts[0], parts[1] - 1, parts[2]).getDay();
+        if (dayOfWeek === 0) {
+            mostrarAlertaFecha('El estudio no atiende los domingos. Por favor selecciona una fecha de lunes a sábado.');
+            dateInput.value = '';
+            resetBookingTime('Selecciona una fecha de atención...');
+            return;
+        }
+
+        // 3. Validar si ya está en fechas completamente ocupadas
+        if (fechasOcupadasSet.has(val)) {
+            mostrarAlertaFecha('Esta fecha ya tiene sus 3 turnos ocupados. Por favor selecciona otro día.');
+            dateInput.value = '';
+            resetBookingTime('Fecha sin turnos disponibles...');
+            return;
+        }
+
+        // 4. Consultar disponibilidad en tiempo real
+        ocultarAlertaFecha();
+        if (bookingTime) {
+            bookingTime.innerHTML = '<option value="" disabled selected>Consultando disponibilidad de turnos...</option>';
+            bookingTime.disabled = true;
+        }
+
+        await refrescarDisponibilidadFecha(val);
+    };
+
+    dateInput.addEventListener('change', onDateChanged);
+}
+
 // Manejar el envío del formulario de reserva con guardado en API y redirección a WhatsApp
 async function handleBookingSubmit(event) {
     event.preventDefault();
@@ -132,9 +267,9 @@ async function handleBookingSubmit(event) {
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Guardando reserva...';
     }
 
-    // 1. Guardar en Base de Datos (SQL Server) vía API REST
+    // 1. Guardar en Base de Datos vía API REST con validación estricta de turno único
     try {
-        await fetch('/api/reservas', {
+        const response = await fetch('/api/reservas', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -149,8 +284,19 @@ async function handleBookingSubmit(event) {
                 notas: notasFinales
             })
         });
+
+        if (!response.ok) {
+            const errData = await response.json().catch(() => ({}));
+            const errMessage = errData.error || 'No se pudo agendar la cita. Es posible que el turno ya haya sido reservado.';
+            mostrarAlertaFecha(errMessage);
+            // Refrescar turnos disponibles de la fecha
+            await refrescarDisponibilidadFecha(date);
+            return;
+        }
     } catch (err) {
-        console.warn('No se pudo sincronizar con la base de datos en segundo plano:', err);
+        console.error('Error de red al conectar con el servidor:', err);
+        alert('Hubo un error de conexión al enviar la solicitud. Por favor intenta de nuevo.');
+        return;
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
@@ -220,7 +366,10 @@ function reiniciarFormularioReserva() {
     if (successCard) {
         successCard.classList.add('d-none');
     }
+    ocultarAlertaFecha();
+    resetBookingTime('Selecciona una fecha primero...');
     quitarCotizacionActiva();
+    cargarFechasOcupadas();
     
     const seccionReserva = document.getElementById('reserva');
     if (seccionReserva) {
@@ -248,4 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnQuitar) {
         btnQuitar.addEventListener('click', quitarCotizacionActiva);
     }
+
+    // Inicializar disponibilidad y bloqueo de turnos/días ocupados
+    initBookingAvailability();
 });

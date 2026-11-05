@@ -39,5 +39,25 @@ public class ReservasController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
+        catch (InvalidOperationException ex)
+        {
+            return Conflict(new { error = ex.Message });
+        }
+    }
+
+    [HttpGet("disponibilidad")]
+    public async Task<ActionResult<DisponibilidadFechaDto>> ObtenerDisponibilidad([FromQuery] DateOnly fecha)
+    {
+        var disp = await _reservaService.ObtenerDisponibilidadFechaAsync(fecha);
+        return Ok(disp);
+    }
+
+    [HttpGet("fechas-ocupadas")]
+    public async Task<ActionResult<List<string>>> ObtenerFechasOcupadas([FromQuery] DateOnly? desde, [FromQuery] DateOnly? hasta)
+    {
+        var d = desde ?? DateOnly.FromDateTime(DateTime.Today);
+        var h = hasta ?? d.AddDays(60);
+        var fechas = await _reservaService.ObtenerFechasCompletamenteOcupadasAsync(d, h);
+        return Ok(fechas.Select(f => f.ToString("yyyy-MM-dd")).ToList());
     }
 }

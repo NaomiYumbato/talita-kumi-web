@@ -14,4 +14,7 @@ public interface IReservaService
     Task<bool> ActualizarNotasAsync(int id, string notas);
     Task<Reserva> CrearReservaManualAsync(TalitaKumiWebApp.ViewModels.Admin.CrearReservaManualViewModel model);
     Task<List<Servicio>> ObtenerServiciosActivosAsync();
+
+    Task<DisponibilidadFechaDto> ObtenerDisponibilidadFechaAsync(DateOnly fecha);
+    Task<List<DateOnly>> ObtenerFechasCompletamenteOcupadasAsync(DateOnly desde, DateOnly hasta);
 }

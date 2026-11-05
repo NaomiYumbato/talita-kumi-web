@@ -60,6 +60,33 @@ public class ApiControllerTests
         Assert.True(response.Id > 0);
     }
 
+    [Fact]
+    public async Task ReservasController_ObtenerDisponibilidad_Retorna200OkConDatos()
+    {
+        var mockService = new FakeReservaService();
+        var controller = new ReservasController(mockService);
+        var fecha = DateOnly.FromDateTime(DateTime.Today.AddDays(3));
+
+        var actionResult = await controller.ObtenerDisponibilidad(fecha);
+
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var dto = Assert.IsType<DisponibilidadFechaDto>(okResult.Value);
+        Assert.Equal(fecha, dto.Fecha);
+    }
+
+    [Fact]
+    public async Task ReservasController_ObtenerFechasOcupadas_Retorna200OkConLista()
+    {
+        var mockService = new FakeReservaService();
+        var controller = new ReservasController(mockService);
+
+        var actionResult = await controller.ObtenerFechasOcupadas(null, null);
+
+        var okResult = Assert.IsType<OkObjectResult>(actionResult.Result);
+        var lista = Assert.IsAssignableFrom<IEnumerable<string>>(okResult.Value);
+        Assert.NotNull(lista);
+    }
+
     private class FakeReservaService : IReservaService
     {
         private int _counter = 1;
@@ -78,5 +105,7 @@ public class ApiControllerTests
         public Task<bool> ActualizarNotasAsync(int id, string notas) => Task.FromResult(true);
         public Task<Reserva> CrearReservaManualAsync(TalitaKumiWebApp.ViewModels.Admin.CrearReservaManualViewModel model) => Task.FromResult(new Reserva());
         public Task<List<Servicio>> ObtenerServiciosActivosAsync() => Task.FromResult(new List<Servicio>());
+        public Task<DisponibilidadFechaDto> ObtenerDisponibilidadFechaAsync(DateOnly fecha) => Task.FromResult(new DisponibilidadFechaDto { Fecha = fecha });
+        public Task<List<DateOnly>> ObtenerFechasCompletamenteOcupadasAsync(DateOnly desde, DateOnly hasta) => Task.FromResult(new List<DateOnly>());
     }
 }

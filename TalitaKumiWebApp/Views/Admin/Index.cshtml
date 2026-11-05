@@ -87,13 +87,13 @@
 
                     <div class="d-flex align-items-center gap-2 ms-xl-2">
                         <span class="badge bg-light text-dark border px-2 py-2">
-                            Total: <strong>@totalSemana</strong>
+                            Total: <strong id="contadorTotalSemana">@totalSemana</strong>
                         </span>
                         <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-2">
-                            🟢 Confirmadas: <strong>@confirmadasSemana</strong>
+                            🟢 Confirmadas: <strong id="contadorConfirmadasSemana">@confirmadasSemana</strong>
                         </span>
                         <span class="badge bg-warning-subtle text-warning-emphasis border border-warning-subtle px-2 py-2">
-                            🟡 Pendientes: <strong>@pendientesSemana</strong>
+                            🟡 Pendientes: <strong id="contadorPendientesSemana">@pendientesSemana</strong>
                         </span>
                     </div>
                 </div>
@@ -140,7 +140,7 @@
                                         .Where(r => r.Fecha == diaFecha && Model.PerteneceATurno(r.Horario, turnoClave))
                                         .ToList();
 
-                                    <td class="p-2 align-top calendar-slot-cell" style="min-width: 170px; height: 115px;">
+                                    <td class="p-2 align-top calendar-slot-cell" data-fecha="@diaFecha.ToString("yyyy-MM-dd")" data-turno="@turnoClave" style="min-width: 170px; height: 115px;">
                                         @if (citasTurno.Any())
                                         {
                                             @foreach (var c in citasTurno)
@@ -202,6 +202,15 @@
                                                             <span class="text-success fw-bold" title="Abonó">✓ S/. @c.MontoAbonado.ToString("0.00")</span>
                                                         }
                                                     </div>
+                                                </div>
+                                            }
+
+                                            @if (!citasTurno.Any(c => c.Estado != "Cancelada"))
+                                            {
+                                                <div class="slot-freed-action mt-1 text-center">
+                                                    <button type="button" class="btn btn-sm btn-outline-success py-0 px-2 small w-100" style="font-size: 0.7rem;" onclick="prellenarCitaManual('@diaFecha.ToString("yyyy-MM-dd")', '@turnoClave')">
+                                                        <i class="bi bi-plus-lg"></i> Turno libre
+                                                    </button>
                                                 </div>
                                             }
                                         }
@@ -298,7 +307,19 @@
                                 var mensajeWa = System.Net.WebUtility.UrlEncode($"Hola {r.Nombre}, te saludamos de Talita Kumi Estudio de Belleza sobre tu cita de {r.Servicio} agendada para el {r.Fecha:dd/MM/yyyy} ({r.Horario}).");
                                 var linkWa = $"https://wa.me/51{telLimpio}?text={mensajeWa}";
 
-                                <tr data-reserva-id="@r.Id">
+                                var turnoClaveCita = Model.DeterminarTurno(r.Horario) ?? "Mañana";
+                                <tr data-reserva-id="@r.Id"
+                                    data-fecha-iso="@r.Fecha.ToString("yyyy-MM-dd")"
+                                    data-fecha-display="@r.Fecha.ToString("dd/MM/yyyy")"
+                                    data-turno-clave="@turnoClaveCita"
+                                    data-horario="@r.Horario"
+                                    data-nombre="@r.Nombre"
+                                    data-telefono="@r.Telefono"
+                                    data-servicio="@r.Servicio"
+                                    data-precio="@r.PrecioEstimado"
+                                    data-abono="@r.MontoAbonado"
+                                    data-estado="@r.Estado"
+                                    data-notas="@(r.Notas ?? "")">
                                     <!-- FECHA Y TURNO -->
                                     <td class="ps-4">
                                         <a href="/Admin?fecha=@r.Fecha.ToString("yyyy-MM-dd")" class="fw-bold text-dark text-decoration-none d-inline-flex align-items-center gap-1" title="Ver esta semana en el calendario">
@@ -460,6 +481,10 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
+                    <div id="crearAlertaDisponibilidad" class="alert alert-warning py-2 px-3 small d-none mb-3 d-flex align-items-center gap-2" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                        <span id="crearAlertaDisponibilidadTexto"></span>
+                    </div>
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-secondary">Nombre de la Clienta *</label>
@@ -525,7 +550,7 @@
                 </div>
                 <div class="modal-footer border-top py-3 px-4 bg-light">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-koi">
+                    <button type="submit" id="btnSubmitCrearReserva" class="btn btn-koi">
                         <i class="bi bi-calendar-check me-1"></i> Agendar Cita
                     </button>
                 </div>

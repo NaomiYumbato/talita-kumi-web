@@ -21,6 +21,11 @@ public class AdminDashboardViewModel
     public bool PerteneceATurno(string? horario, string turnoClave) => CorrespondeATurno(horario, turnoClave);
 
     /// <summary>
+    /// Determina la clave de turno ("Mañana", "Tarde 1", "Tarde 2") para una cita desde la vista mediante Model.DeterminarTurno(r.Horario).
+    /// </summary>
+    public string? DeterminarTurno(string? horario) => DeterminarTurnoClave(horario);
+
+    /// <summary>
     /// Determina de forma robusta si el horario de una cita corresponde a un turno clave del calendario ("Mañana", "Tarde 1", "Tarde 2").
     /// Tolera variaciones históricas como "Tarde Temprano", "Tarde Tarde", "Tarde 1", "Tarde 2", y horas puntuales.
     /// </summary>
@@ -67,5 +72,16 @@ public class AdminDashboardViewModel
             "Tarde 2" => esTarde2,
             _ => h.Contains(turnoClave, StringComparison.OrdinalIgnoreCase)
         };
+    }
+
+    /// <summary>
+    /// Identifica a cuál de los 3 turnos estándar pertenece un texto de horario ("Mañana", "Tarde 1", "Tarde 2") o null si no se puede clasificar.
+    /// </summary>
+    public static string? DeterminarTurnoClave(string? horario)
+    {
+        if (CorrespondeATurno(horario, "Mañana")) return "Mañana";
+        if (CorrespondeATurno(horario, "Tarde 1")) return "Tarde 1";
+        if (CorrespondeATurno(horario, "Tarde 2")) return "Tarde 2";
+        return null;
     }
 }

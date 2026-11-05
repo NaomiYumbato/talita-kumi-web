@@ -474,12 +474,16 @@
                                     <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar-event text-muted"></i></span>
                                     <input type="date" class="form-control border-start-0" id="bookingDate" required />
                                 </div>
+                                <div id="bookingDateAlert" class="alert alert-warning py-2 px-3 small mt-2 d-none d-flex align-items-center gap-2 mb-0" role="alert">
+                                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                                    <span id="bookingDateAlertText"></span>
+                                </div>
                             </div>
 
                             <div class="col-md-6">
                                 <label for="bookingTime" class="form-label">Franja horaria preferida</label>
                                 <select class="form-select" id="bookingTime" required>
-                                    <option value="" disabled selected>Elige un turno...</option>
+                                    <option value="" disabled selected>Selecciona una fecha primero...</option>
                                     <option value="Mañana (10:00 a 13:00)">Mañana (10:00 a 13:00)</option>
                                     <option value="Tarde 1 (13:00 a 16:30)">Tarde 1 - Temprano (13:00 a 16:30)</option>
                                     <option value="Tarde 2 (16:30 a 19:30)">Tarde 2 - Tarde (16:30 a 19:30)</option>

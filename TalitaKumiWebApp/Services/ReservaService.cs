@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TalitaKumiWebApp.Data;
 using TalitaKumiWebApp.Models;
+using TalitaKumiWebApp.ViewModels.Admin;
 
 namespace TalitaKumiWebApp.Services;
 
@@ -28,6 +29,20 @@ public class ReservaService : IReservaService
 
         if (reserva.Fecha < DateOnly.FromDateTime(DateTime.Today))
             throw new ArgumentException("La fecha no puede ser anterior a hoy.", nameof(reserva.Fecha));
+
+        // Validar que el turno no esté ocupado por otra cita activa (no cancelada)
+        var claveTurno = AdminDashboardViewModel.DeterminarTurnoClave(reserva.Horario);
+        if (!string.IsNullOrEmpty(claveTurno))
+        {
+            var citasActivas = await _context.Reservas
+                .Where(r => r.Fecha == reserva.Fecha && r.Estado != "Cancelada")
+                .ToListAsync();
+
+            if (citasActivas.Any(c => AdminDashboardViewModel.CorrespondeATurno(c.Horario, claveTurno)))
+            {
+                throw new InvalidOperationException("El turno seleccionado ya se encuentra ocupado para esta fecha.");
+            }
+        }
 
         // 1. Vincular o registrar Cliente por teléfono
         var cliente = await _context.Clientes.FirstOrDefaultAsync(c => c.Telefono == reserva.Telefono);
@@ -222,6 +237,20 @@ public class ReservaService : IReservaService
         var estadoFinal = NormalizarEstado(model.EstadoInicial);
         var abonoFinal = model.MontoAbonado ?? (estadoFinal == "Confirmada" ? 20.00m : 0.00m);
 
+        // Validar que el turno no esté ocupado por otra cita activa (no cancelada)
+        var claveTurno = AdminDashboardViewModel.DeterminarTurnoClave(model.Horario);
+        if (!string.IsNullOrEmpty(claveTurno))
+        {
+            var citasActivas = await _context.Reservas
+                .Where(r => r.Fecha == model.Fecha && r.Estado != "Cancelada")
+                .ToListAsync();
+
+            if (citasActivas.Any(c => AdminDashboardViewModel.CorrespondeATurno(c.Horario, claveTurno)))
+            {
+                throw new InvalidOperationException("El turno seleccionado ya se encuentra ocupado para esta fecha.");
+            }
+        }
+
         var reserva = new Reserva
         {
             ClienteId = cliente.Id,
@@ -242,6 +271,67 @@ public class ReservaService : IReservaService
         _context.Reservas.Add(reserva);
         await _context.SaveChangesAsync();
         return reserva;
+    }
+
+    public async Task<DisponibilidadFechaDto> ObtenerDisponibilidadFechaAsync(DateOnly fecha)
+    {
+        var citasActivas = await _context.Reservas
+            .Where(r => r.Fecha == fecha && r.Estado != "Cancelada")
+            .ToListAsync();
+
+        var turnosPredeterminados = new[]
+        {
+            ("Mañana", "Mañana (10:00 a 13:00)"),
+            ("Tarde 1", "Tarde 1 (13:00 a 16:30)"),
+            ("Tarde 2", "Tarde 2 (16:30 a 19:30)")
+        };
+
+        var disponibles = new List<string>();
+        var ocupados = new List<string>();
+
+        foreach (var (clave, nombreCompleto) in turnosPredeterminados)
+        {
+            bool estaOcupado = citasActivas.Any(c => AdminDashboardViewModel.CorrespondeATurno(c.Horario, clave));
+            if (estaOcupado)
+            {
+                ocupados.Add(nombreCompleto);
+            }
+            else
+            {
+                disponibles.Add(nombreCompleto);
+            }
+        }
+
+        return new DisponibilidadFechaDto
+        {
+            Fecha = fecha,
+            TurnosDisponibles = disponibles,
+            TurnosOcupados = ocupados
+        };
+    }
+
+    public async Task<List<DateOnly>> ObtenerFechasCompletamenteOcupadasAsync(DateOnly desde, DateOnly hasta)
+    {
+        var citasActivas = await _context.Reservas
+            .Where(r => r.Fecha >= desde && r.Fecha <= hasta && r.Estado != "Cancelada")
+            .ToListAsync();
+
+        var fechasOcupadas = new List<DateOnly>();
+        var agrupadas = citasActivas.GroupBy(r => r.Fecha);
+
+        foreach (var grupo in agrupadas)
+        {
+            bool manana = grupo.Any(c => AdminDashboardViewModel.CorrespondeATurno(c.Horario, "Mañana"));
+            bool tarde1 = grupo.Any(c => AdminDashboardViewModel.CorrespondeATurno(c.Horario, "Tarde 1"));
+            bool tarde2 = grupo.Any(c => AdminDashboardViewModel.CorrespondeATurno(c.Horario, "Tarde 2"));
+
+            if (manana && tarde1 && tarde2)
+            {
+                fechasOcupadas.Add(grupo.Key);
+            }
+        }
+
+        return fechasOcupadas;
     }
 
     private static string NormalizarEstado(string raw)
