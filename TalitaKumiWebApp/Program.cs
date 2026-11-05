@@ -44,19 +44,22 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
     });
 
-var dbServer = Environment.GetEnvironmentVariable("DB_SERVER") ?? "localhost,1433";
-var dbName = Environment.GetEnvironmentVariable("DB_NAME") ?? "TalitaKumiDb";
-var dbUser = Environment.GetEnvironmentVariable("DB_USER") ?? "sa";
-var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD") ?? "sql";
+// 2. Construir la cadena de conexión exclusivamente a partir de las variables de .env
+var dbServer = Environment.GetEnvironmentVariable("DB_SERVER");
+var dbName = Environment.GetEnvironmentVariable("DB_NAME");
+var dbUser = Environment.GetEnvironmentVariable("DB_USER");
+var dbPassword = Environment.GetEnvironmentVariable("DB_PASSWORD");
 
-var defaultConn = $"Server={dbServer};Database={dbName};User Id={dbUser};Password={dbPassword};TrustServerCertificate=True;MultipleActiveResultSets=True;";
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? defaultConn;
-
-// Si en appsettings o .env la contraseña está configurada, asegurar que use la de .env si existe
-if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("DB_PASSWORD")))
+if (string.IsNullOrWhiteSpace(dbServer) ||
+    string.IsNullOrWhiteSpace(dbName) ||
+    string.IsNullOrWhiteSpace(dbUser) ||
+    string.IsNullOrWhiteSpace(dbPassword))
 {
-    connectionString = defaultConn;
+    throw new InvalidOperationException(
+        "CRITICAL: Todas las variables de conexión a la base de datos (DB_SERVER, DB_NAME, DB_USER y DB_PASSWORD) deben estar configuradas en el archivo .env.");
 }
+
+var connectionString = $"Server={dbServer};Database={dbName};User Id={dbUser};Password={dbPassword};TrustServerCertificate=True;MultipleActiveResultSets=True;";
 
 builder.Services.AddDbContext<TalitaKumiWebApp.Data.AppDbContext>(options =>
     options.UseSqlServer(connectionString, sqlOptions =>
