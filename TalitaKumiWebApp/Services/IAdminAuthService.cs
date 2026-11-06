@@ -8,4 +8,5 @@ public interface IAdminAuthService
     Task<UsuarioAdmin?> GetByUsernameAsync(string username);
     Task<bool> UpdatePasswordAsync(string username, string newPassword);
     Task EnsureDefaultAdminUserAsync(string defaultUsername, string defaultPassword, string defaultNombre);
+    Task<(bool success, string message, string? finalUsername)> ActualizarPerfilAsync(string currentUsername, string nuevoUsername, string nuevoNombre, string? passwordActual, string? nuevoPassword);
 }

@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initStatusDropdowns();
     initNotesModalEditor();
     initAdminAvailability();
+    initProfileModal();
 });
 
 // Toast auxiliar para retroalimentación instantánea
@@ -606,3 +607,172 @@ function getAntiForgeryToken() {
     const tokenInput = document.querySelector('input[name="__RequestVerificationToken"]');
     return tokenInput ? tokenInput.value : '';
 }
+
+// 7. Modal Mi Perfil (Cargar datos y alternar visibilidad de contraseñas)
+function initProfileModal() {
+    const modalEl = document.getElementById('modalMiPerfil');
+    if (!modalEl) return;
+
+    modalEl.addEventListener('show.bs.modal', async () => {
+        const inputUsername = document.getElementById('perfilUsername');
+        const inputNombre = document.getElementById('perfilNombreCompleto');
+        const alertBox = document.getElementById('perfilAlerta');
+
+        // Limpiar campos de contraseña
+        const passActual = document.getElementById('perfilPasswordActual');
+        const passNuevo = document.getElementById('perfilNuevoPassword');
+        const passConf = document.getElementById('perfilConfirmarPassword');
+        if (passActual) passActual.value = '';
+        if (passNuevo) passNuevo.value = '';
+        if (passConf) passConf.value = '';
+
+        if (alertBox) alertBox.classList.add('d-none');
+
+        try {
+            const resp = await fetch('/Admin/ObtenerPerfil');
+            if (resp.ok) {
+                const data = await resp.json();
+                if (inputUsername) inputUsername.value = data.username || '';
+                if (inputNombre) inputNombre.value = data.nombreCompleto || '';
+            }
+        } catch (err) {
+            console.error('Error al cargar datos del perfil:', err);
+        }
+    });
+
+    const toggleBtns = modalEl.querySelectorAll('.btn-toggle-password');
+    toggleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            const targetInput = document.getElementById(targetId);
+            const icon = btn.querySelector('i');
+            if (!targetInput || !icon) return;
+
+            if (targetInput.type === 'password') {
+                targetInput.type = 'text';
+                icon.className = 'bi bi-eye-slash';
+            } else {
+                targetInput.type = 'password';
+                icon.className = 'bi bi-eye';
+            }
+        });
+    });
+}
+
+// Manejador del formulario de edición de perfil
+window.handleGuardarPerfil = async function (event) {
+    event.preventDefault();
+
+    const inputUsername = document.getElementById('perfilUsername');
+    const inputNombre = document.getElementById('perfilNombreCompleto');
+    const inputPassActual = document.getElementById('perfilPasswordActual');
+    const inputPassNuevo = document.getElementById('perfilNuevoPassword');
+    const inputPassConf = document.getElementById('perfilConfirmarPassword');
+
+    const nuevoUsername = inputUsername ? inputUsername.value.trim() : '';
+    const nombreCompleto = inputNombre ? inputNombre.value.trim() : '';
+    const passwordActual = inputPassActual ? inputPassActual.value : '';
+    const nuevoPassword = inputPassNuevo ? inputPassNuevo.value : '';
+    const confirmarPassword = inputPassConf ? inputPassConf.value : '';
+
+    const alertBox = document.getElementById('perfilAlerta');
+    const alertText = document.getElementById('perfilAlertaTexto');
+    const submitBtn = document.getElementById('btnGuardarPerfil');
+
+    const mostrarError = (msg) => {
+        if (alertBox && alertText) {
+            alertText.textContent = msg;
+            alertBox.classList.remove('d-none');
+        } else {
+            showAdminToast(msg, true);
+        }
+    };
+
+    if (alertBox) alertBox.classList.add('d-none');
+
+    if (!nuevoUsername) {
+        mostrarError('El usuario de acceso es obligatorio.');
+        return;
+    }
+
+    if (!nombreCompleto) {
+        mostrarError('El nombre completo es obligatorio.');
+        return;
+    }
+
+    if (nuevoPassword || confirmarPassword) {
+        if (!passwordActual) {
+            mostrarError('Debes ingresar tu contraseña actual para autorizar el cambio de contraseña.');
+            return;
+        }
+        if (nuevoPassword.length < 6) {
+            mostrarError('La nueva contraseña debe tener al menos 6 caracteres.');
+            return;
+        }
+        if (nuevoPassword !== confirmarPassword) {
+            mostrarError('La nueva contraseña y su confirmación no coinciden.');
+            return;
+        }
+    }
+
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span> Guardando...';
+    }
+
+    try {
+        const resp = await fetch('/Admin/ActualizarPerfil', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': getAntiForgeryToken()
+            },
+            body: JSON.stringify({
+                nuevoUsername,
+                nombreCompleto,
+                passwordActual: passwordActual || null,
+                nuevoPassword: nuevoPassword || null,
+                confirmarPassword: confirmarPassword || null
+            })
+        });
+
+        const data = await resp.json();
+        if (!resp.ok || !data.success) {
+            throw new Error(data.message || 'Error al actualizar el perfil.');
+        }
+
+        // Actualizar el nombre visible en la barra superior en vivo
+        const navbarNombre = document.getElementById('adminNavbarNombre');
+        if (navbarNombre && data.nombre) {
+            navbarNombre.textContent = data.nombre;
+        }
+
+        if (inputUsername && data.username) {
+            inputUsername.value = data.username;
+        }
+
+        // Cerrar modal
+        const modalEl = document.getElementById('modalMiPerfil');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        if (data.usernameCambiado) {
+            showAdminToast('Usuario de acceso actualizado. Actualizando sesión...');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+            return;
+        }
+
+        showAdminToast(data.message || 'Perfil actualizado con éxito.');
+    } catch (err) {
+        mostrarError(err.message || 'Error de conexión con el servidor.');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
+        }
+    }
+};
+

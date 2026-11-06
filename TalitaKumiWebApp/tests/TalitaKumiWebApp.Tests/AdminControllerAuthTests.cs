@@ -46,4 +46,19 @@ public class AdminControllerAuthTests
         var viewResult = Assert.IsType<ViewResult>(result);
         Assert.Null(viewResult.Model);
     }
+    [Fact]
+    public async Task Logout_RedireccionaALogin()
+    {
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        using var context = new AppDbContext(options);
+        var authService = new AdminAuthService(context);
+        var controller = new AdminController(authService, null!);
+
+        var result = await controller.Logout();
+
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal(nameof(AdminController.Login), redirectResult.ActionName);
+    }
 }

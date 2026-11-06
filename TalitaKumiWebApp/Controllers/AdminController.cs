@@ -85,8 +85,10 @@ public class AdminController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [AllowAnonymous]
+    [HttpGet("Admin/Logout")]
     [HttpPost("Admin/Logout")]
-    [ValidateAntiForgeryToken]
+    [IgnoreAntiforgeryToken]
     public async Task<IActionResult> Logout()
     {
         if (HttpContext != null)
@@ -190,5 +192,90 @@ public class AdminController : Controller
         }
 
         return RedirectToAction(nameof(Index));
+    }
+
+    [HttpGet("Admin/ObtenerPerfil")]
+    public async Task<IActionResult> ObtenerPerfil()
+    {
+        var currentUsername = User?.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUsername))
+        {
+            return Unauthorized(new { success = false, message = "Sesión no válida." });
+        }
+
+        var usuario = await _authService.GetByUsernameAsync(currentUsername);
+        if (usuario == null)
+        {
+            return NotFound(new { success = false, message = "Usuario no encontrado." });
+        }
+
+        return Json(new
+        {
+            success = true,
+            username = usuario.Username,
+            nombreCompleto = usuario.NombreCompleto,
+            ultimoAcceso = usuario.UltimoAcceso?.ToLocalTime().ToString("dd/MM/yyyy HH:mm") ?? "Primer acceso"
+        });
+    }
+
+    [HttpPost("Admin/ActualizarPerfil")]
+    public async Task<IActionResult> ActualizarPerfil([FromBody] ActualizarPerfilRequest req)
+    {
+        if (req == null)
+        {
+            return BadRequest(new { success = false, message = "Datos inválidos." });
+        }
+
+        var currentUsername = User?.Identity?.Name;
+        if (string.IsNullOrWhiteSpace(currentUsername))
+        {
+            return Unauthorized(new { success = false, message = "Sesión no válida." });
+        }
+
+        if (!string.IsNullOrWhiteSpace(req.NuevoPassword) && req.NuevoPassword != req.ConfirmarPassword)
+        {
+            return BadRequest(new { success = false, message = "La nueva contraseña y su confirmación no coinciden." });
+        }
+
+        var (success, message, finalUsername) = await _authService.ActualizarPerfilAsync(
+            currentUsername,
+            req.NuevoUsername ?? currentUsername,
+            req.NombreCompleto ?? string.Empty,
+            req.PasswordActual,
+            req.NuevoPassword);
+
+        if (!success)
+        {
+            return BadRequest(new { success = false, message });
+        }
+
+        var updatedUsername = finalUsername ?? req.NuevoUsername?.Trim() ?? currentUsername;
+
+        // Actualizar los claims de la sesión (Name y GivenName) para reflejar los cambios inmediatamente
+        if (HttpContext != null)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.Name, updatedUsername),
+                new Claim(ClaimTypes.GivenName, req.NombreCompleto!.Trim()),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity));
+        }
+
+        var usernameCambiado = !string.Equals(currentUsername, updatedUsername, StringComparison.OrdinalIgnoreCase);
+
+        return Json(new
+        {
+            success = true,
+            username = updatedUsername,
+            usernameCambiado,
+            nombre = req.NombreCompleto!.Trim(),
+            message
+        });
     }
 }

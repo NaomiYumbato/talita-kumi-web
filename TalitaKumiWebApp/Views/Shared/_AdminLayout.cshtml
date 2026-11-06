@@ -147,8 +147,12 @@
                     <div class="ms-auto d-flex flex-wrap align-items-center gap-2 mt-2 mt-lg-0">
                         <span class="user-greeting">
                             <i class="bi bi-person-circle text-primary"></i>
-                            <span>Hola, <strong>@(User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value ?? "Naomi")</strong></span>
+                            <span>Hola, <strong id="adminNavbarNombre">@(User?.FindFirst(System.Security.Claims.ClaimTypes.GivenName)?.Value ?? User?.Identity?.Name ?? "Administrador")</strong></span>
                         </span>
+
+                        <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-toggle="modal" data-bs-target="#modalMiPerfil" title="Editar mis datos y contraseña">
+                            <i class="bi bi-person-gear me-1"></i>Mi Perfil
+                        </button>
 
                         <a href="/" target="_blank" class="btn btn-outline-secondary btn-sm" title="Abrir sitio web de clientas en nueva pestaña">
                             <i class="bi bi-box-arrow-up-right me-1"></i>Ver Sitio Web
@@ -159,7 +163,6 @@
                         </button>
 
                         <form asp-controller="Admin" asp-action="Logout" method="post" class="d-inline">
-                            @Html.AntiForgeryToken()
                             <button type="submit" class="btn btn-outline-danger btn-sm" title="Cerrar Sesión">
                                 <i class="bi bi-box-arrow-right me-1"></i>Salir
                             </button>
@@ -181,6 +184,105 @@
             <span>&copy; @DateTime.Now.Year <strong>Talita Kumi Estudio de Belleza</strong> — Panel de Control Administrativo</span>
         </div>
     </footer>
+
+    <!-- ========================================================
+         MODAL GLOBAL: EDITAR PERFIL Y CONTRASEÑA
+         ======================================================== -->
+    <div class="modal fade" id="modalMiPerfil" tabindex="-1" aria-labelledby="modalMiPerfilLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <form id="formMiPerfil" onsubmit="handleGuardarPerfil(event)">
+                    <div class="modal-header border-bottom py-3 px-4" style="background-color: var(--admin-bg);">
+                        <h5 class="modal-title fw-bold fs-6 text-dark" id="modalMiPerfilLabel">
+                            <i class="bi bi-person-gear text-primary me-2"></i> Mi Perfil de Administrador
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body p-4">
+                        <div id="perfilAlerta" class="alert alert-danger py-2 px-3 small d-none mb-3 d-flex align-items-center gap-2" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                            <span id="perfilAlertaTexto"></span>
+                        </div>
+
+                        <div class="row g-3">
+                            <!-- Usuario de Acceso -->
+                            <div class="col-12">
+                                <label for="perfilUsername" class="form-label small fw-bold text-secondary">Usuario de Acceso *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-shield-lock text-muted"></i></span>
+                                    <input type="text" id="perfilUsername" class="form-control border-start-0" placeholder="Tu usuario de acceso" required autocomplete="username" />
+                                </div>
+                                <div class="form-text small" style="font-size: 0.75rem;">Usuario que utilizarás para iniciar sesión en el portal.</div>
+                            </div>
+
+                            <!-- Nombre Completo -->
+                            <div class="col-12">
+                                <label for="perfilNombreCompleto" class="form-label small fw-bold text-secondary">Nombre Completo *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-person text-muted"></i></span>
+                                    <input type="text" id="perfilNombreCompleto" class="form-control border-start-0" placeholder="Tu nombre completo" required />
+                                </div>
+                            </div>
+
+                            <!-- Separador Seguridad -->
+                            <div class="col-12 pt-2">
+                                <div class="border-top pt-3">
+                                    <div class="fw-bold small text-dark d-flex align-items-center gap-1 mb-1">
+                                        <i class="bi bi-key-fill text-warning"></i> Cambiar Contraseña (Opcional)
+                                    </div>
+                                    <p class="text-muted small mb-2" style="font-size: 0.78rem;">
+                                        Deja estos campos en blanco si solo deseas actualizar tu nombre.
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Contraseña Actual -->
+                            <div class="col-12">
+                                <label for="perfilPasswordActual" class="form-label small fw-bold text-secondary">Contraseña Actual</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock text-muted"></i></span>
+                                    <input type="password" id="perfilPasswordActual" class="form-control border-start-0 border-end-0" placeholder="Tu contraseña actual" autocomplete="current-password" />
+                                    <button class="btn btn-outline-secondary border-start-0 btn-toggle-password" type="button" data-target="perfilPasswordActual" title="Mostrar/Ocultar">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Nueva Contraseña -->
+                            <div class="col-12">
+                                <label for="perfilNuevoPassword" class="form-label small fw-bold text-secondary">Nueva Contraseña</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-shield-plus text-muted"></i></span>
+                                    <input type="password" id="perfilNuevoPassword" class="form-control border-start-0 border-end-0" placeholder="Mínimo 6 caracteres" autocomplete="new-password" />
+                                    <button class="btn btn-outline-secondary border-start-0 btn-toggle-password" type="button" data-target="perfilNuevoPassword" title="Mostrar/Ocultar">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Confirmar Nueva Contraseña -->
+                            <div class="col-12">
+                                <label for="perfilConfirmarPassword" class="form-label small fw-bold text-secondary">Confirmar Nueva Contraseña</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-check2-circle text-muted"></i></span>
+                                    <input type="password" id="perfilConfirmarPassword" class="form-control border-start-0 border-end-0" placeholder="Repite la nueva contraseña" autocomplete="new-password" />
+                                    <button class="btn btn-outline-secondary border-start-0 btn-toggle-password" type="button" data-target="perfilConfirmarPassword" title="Mostrar/Ocultar">
+                                        <i class="bi bi-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-top py-3 px-4 bg-light">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" id="btnGuardarPerfil" class="btn btn-koi">
+                            <i class="bi bi-check2-circle me-1"></i> Guardar Cambios
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
     <!-- Scripts -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

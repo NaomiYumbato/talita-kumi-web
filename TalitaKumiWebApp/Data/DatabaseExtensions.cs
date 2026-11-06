@@ -21,22 +21,23 @@ public static class DatabaseExtensions
         // 1. Sincronizar dinámicamente tablas, columnas e índices según el modelo actual
         await synchronizer.SynchronizeAsync(context);
 
-        // 2. Asegurar que exista el usuario administrador con las credenciales secretas
+        // 2. Asegurar que exista el usuario administrador con las credenciales configuradas
         var adminAuth = scope.ServiceProvider.GetRequiredService<IAdminAuthService>();
         var defaultAdminUser = Environment.GetEnvironmentVariable("ADMIN_USERNAME")
-            ?? configuration["AdminSettings:DefaultUsername"]
-            ?? "naomi";
+            ?? configuration["AdminSettings:DefaultUsername"];
 
         var defaultAdminPass = Environment.GetEnvironmentVariable("ADMIN_PASSWORD")
             ?? configuration["AdminSettings:DefaultPassword"];
 
         var defaultAdminName = Environment.GetEnvironmentVariable("ADMIN_NOMBRE")
-            ?? configuration["AdminSettings:DefaultNombre"]
-            ?? "Naomi Yumbato";
+            ?? configuration["AdminSettings:DefaultNombre"];
 
-        if (!string.IsNullOrWhiteSpace(defaultAdminPass))
+        if (!string.IsNullOrWhiteSpace(defaultAdminUser) && !string.IsNullOrWhiteSpace(defaultAdminPass))
         {
-            await adminAuth.EnsureDefaultAdminUserAsync(defaultAdminUser, defaultAdminPass, defaultAdminName);
+            await adminAuth.EnsureDefaultAdminUserAsync(
+                defaultAdminUser,
+                defaultAdminPass,
+                string.IsNullOrWhiteSpace(defaultAdminName) ? defaultAdminUser : defaultAdminName);
         }
     }
 }
